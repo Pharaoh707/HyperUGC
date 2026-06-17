@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mandjack Digital | Hyper UGC Studio</title>
+    
+    <!-- Prevent window.fetch readonly setter crash in sandboxed/iframe environments -->
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          
+          // Try to redefine window.fetch locally first
+          try {
+            Object.defineProperty(window, "fetch", {
+              get: function() { return originalFetch; },
+              set: function(val) { originalFetch = val; },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e1) {
+            console.warn("Direct window.fetch override skipped, trying prototype", e1);
+            try {
+              var WinProto = window.Window ? window.Window.prototype : Object.getPrototypeOf(window);
+              if (WinProto) {
+                Object.defineProperty(WinProto, "fetch", {
+                  get: function() { return originalFetch; },
+                  set: function(val) { originalFetch = val; },
+                  configurable: true,
+                  enumerable: true
+                });
+              }
+            } catch (e2) {
+              console.warn("Prototype window.fetch override skipped", e2);
+            }
+          }
+
+          // Define a safe globalThis proxy as an additional layer of safety
+          var originalGlobalThis = window.globalThis || window;
+          var globalThisProxy = new Proxy(originalGlobalThis, {
+            get: function(target, prop) {
+              if (prop === 'fetch') {
+                return originalFetch;
+              }
+              var val = target[prop];
+              if (typeof val === 'function') {
+                return val.bind(target);
+              }
+              return val;
+            },
+            set: function(target, prop, value) {
+              if (prop === 'fetch') {
+                console.info("Intercepted write to globalThis.fetch, retaining original");
+                originalFetch = value;
+                return true;
+              }
+              try {
+                target[prop] = value;
+                return true;
+              } catch (e) {
+                console.warn("Could not set property on globalThis:", prop, e);
+                return true; // prevent strict mode crash
+              }
+            }
+          });
+
+          var desc = Object.getOwnPropertyDescriptor(window, 'globalThis');
+          if (!desc || desc.configurable) {
+            Object.defineProperty(window, 'globalThis', {
+              value: globalThisProxy,
+              writable: true,
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (e) {
+          console.error("Global safe-fetch setup completed with status:", e);
+        }
+      })();
+    </script>
+
+    <meta name="description" content="Get 5 cinematic, conversion-focused UGC video ads delivered in 72 hours. Launch rate starting at only $300 deposit. 100% satisfaction guarantee." />
+    
+    <!-- Open Graph / Social SEO -->
+    <meta property="og:title" content="Mandjack Digital | Hyper UGC Studio" />
+    <meta property="og:description" content="Get 5 cinematic, conversion-focused UGC video ads delivered in 72 hours. Bright, high-converting video structures engineered to sell." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mandjack Digital | Hyper UGC Studio" />
+    
+    <!-- Premium Google Fonts Pairing: Space Grotesk (Tech modern display) + Inter (Editorial Clean UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Google Structured Data (JSON-LD Markup) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "Hyper UGC Ad Creative Package",
+        "image": "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=800",
+        "description": "5 custom animated UGC ads optimized for Facebook, Instagram, TikTok, and YouTube, delivered in 72 hours. Includes 3 heavy-converting concepts and 2 optional hook variants.",
+        "offers": {
+          "@type": "Offer",
+          "price": "600.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/LimitedAvailability",
+          "priceValidUntil": "2026-12-31"
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-[#fafbfd] text-slate-900 selection:bg-purple-100 selection:text-purple-900 overflow-x-hidden antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

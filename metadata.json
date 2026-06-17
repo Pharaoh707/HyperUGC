@@ -1,0 +1,8 @@
+{
+  "name": "Mandjack Digital | Hyper UGC Studio",
+  "description": "High-conversion, hyper-realistic animated UGC landing page for Mandjack Digital, featuring continuous fluid canvas backdrops and cinema-grade ad creatives.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
