@@ -21,8 +21,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
   // Diverse, adult, high-profile target portraits with realistic metric-focused testimonials centering ease of use.
   const set1: Testimonial[] = [
     {
-      name: "Marcus Vance",
-      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Elliot Mercer",
+      avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Brand Owner",
       brand: "Safi Bedding",
       metric: "CPA dropped from $22 to $11.40",
@@ -30,8 +30,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Our aesthetic brand guidelines were constantly ignored by creator directories. This team captured the linen texture and high-sun lighting perfectly. Received 5 polished files in exactly 3 days."
     },
     {
-      name: "Chantal Haddad",
-      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Seraphine Dupont",
+      avatarUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Head of Growth",
       brand: "Bloom Organics",
       metric: "CTR scaled from 1.2% to 3.8%",
@@ -39,8 +39,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "We were burning significant budget on stale static ads. The natural unboxing creatives stopped the scroll on Meta immediately, reducing our aggregate acquisition costs in 48 hours."
     },
     {
-      name: "Kenji Sato",
-      avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Haruto Takahashi",
+      avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120&h=120",
       position: "E-commerce Founder",
       brand: "Zenith Activewear",
       metric: "ROAS increased 2.4X organically",
@@ -48,8 +48,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "I simply filled in a restful 10-minute brief and got high-spec videos that felt like a professional production. The entire workflow was incredibly straightforward and stress-free."
     },
     {
-      name: "Amina Al-Masri",
-      avatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Layla Ghadir",
+      avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Social Media Manager",
       brand: "Zaraa Glow",
       metric: "Ad spend efficiency grew +42%",
@@ -57,8 +57,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Managing content feedback loops with typical creators is a major struggle. Here, the final drafts matched our visual goals perfectly on the first try — we deployed them instantly."
     },
     {
-      name: "Tariq Davidson",
-      avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Jordan Brooks",
+      avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Performance Marketer",
       brand: "Velo Nutrition",
       metric: "First hook variant converted 3.1%",
@@ -66,8 +66,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "The inclusion of two free hook splits in the package is brilliant. We split-tested the unboxing intros against testimonial hooks and isolated our winner in 12 hours of spend."
     },
     {
-      name: "Chloe Dupont",
-      avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Amilia Vance",
+      avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Brand Director",
       brand: "Soleil Suncare",
       metric: "Conversion Rate boosted by 38%",
@@ -75,8 +75,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "The visual quality is fully indistinguishable from high-budget agency shoots. Skin textures, product swatches, and hand feel are elegant, consistent, and beautiful."
     },
     {
-      name: "Sienna Martinez",
-      avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Dahlia Alvarez",
+      avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Solopreneur",
       brand: "Lumi Dental Wax",
       metric: "Saved $3,500 in creative booking fees",
@@ -84,8 +84,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "I didn't have to hire modeling agencies or coordinate high-rent studio rentals myself. Sent the guidelines, paid the low deposit, and received exact files ready to turn on."
     },
     {
-      name: "Gabriel Mbatha",
-      avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Sizwe Dlamini",
+      avatarUrl: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Co-founder",
       brand: "AeroVeda Cosmeceuticals",
       metric: "Average CPA reduced by $14.20",
@@ -93,8 +93,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Usually 'deliverables' still requires cropping for YouTube Shorts or stories. They sent all files pre-sliced in 9:16 and 1:1, perfectly centered and balanced."
     },
     {
-      name: "Yuki Lin",
-      avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Chloe Keng",
+      avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Media Buyer",
       brand: "Omni Tech Bands",
       metric: "Launched active scaling 4 days early",
@@ -105,7 +105,7 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
 
   const set2: Testimonial[] = [
     {
-      name: "Regina Vance",
+      name: "Kendra Sterling",
       avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Head of Growth",
       brand: "Glow & Co Cosmetics",
@@ -114,8 +114,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "The visual pacing is written exactly how authentic shoppers talk online. Warm, engaging, down-to-earth transitions. There's zero AI robotic scripting or corporate speak."
     },
     {
-      name: "Darius Miller",
-      avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Lincoln Pierce",
+      avatarUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=120&h=120",
       position: "E-com Director",
       brand: "Volt Powerbeds",
       metric: "CAC decreased by 34% instantly",
@@ -123,8 +123,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "We were quite tired of creators sending back cell phone videos with high background room echo. The audios delivered here use premium studio lapel rigs."
     },
     {
-      name: "Soraya Kanaan",
-      avatarUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Mariana Santos",
+      avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Brand Manager",
       brand: "Elixir Wellness Labs",
       metric: "Hook retention rate grew +28%",
@@ -132,8 +132,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "The absolute clarity of the texture closeups is stunning. The bubble lathering and oil drops are clean, clear, and perfectly focused. Extremely graceful work."
     },
     {
-      name: "Aaron Goldman",
-      avatarUrl: "https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Gideon Thorne",
+      avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Social Advertising Lead",
       brand: "Apex Apparel",
       metric: "Halved our creative fatigue cycle",
@@ -141,8 +141,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Typical agency assets fatigue in under a week. Having affordable fresh packages of 5 ads dropping every month allows us to run optimized campaign testing."
     },
     {
-      name: "Elena Rostova",
-      avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Tatiana Morozova",
+      avatarUrl: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Performance Marketer",
       brand: "SkinBotanica",
       metric: "CTR scaled from 1.5% to 4.2%",
@@ -150,8 +150,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Their unboxing setups trigger curiosity from the first raw frame. Cost per lander view dropped by half within a couple of days. Essential performance tool."
     },
     {
-      name: "Zayn Al-Saeed",
-      avatarUrl: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Karim Mansoor",
+      avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=120&h=120",
       position: "E-Commerce Founder",
       brand: "Aura Home Scents",
       metric: "First campaign scaled past $10k spend",
@@ -159,8 +159,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "One organized portal handled our entire project lifecycle. We didn't have to micromanage timelines, the high-res files arrived exactly on the 70th hour."
     },
     {
-      name: "Mia Thorne",
-      avatarUrl: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Audrey Sterling",
+      avatarUrl: "https://images.unsplash.com/photo-1445053023192-8d45cb66099d?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Creative Director",
       brand: "Stellar Shampoos",
       metric: "90% team alignment on the first briefing",
@@ -168,8 +168,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "No mismatch in visual energy at all. They respected our minimalist brand guidelines flawlessly. We've locked in recurring video plans for next quarter."
     },
     {
-      name: "Nico Tanaka",
-      avatarUrl: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Taiga Sato",
+      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Growth Co-op",
       brand: "Keiko Coffee Filters",
       metric: "Drove 1,200 purchases in first week",
@@ -177,8 +177,8 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       quote: "Most UGC reviews feel forced and overacted. The pacing here is slow, calm, conversational, and genuinely trustworthy. Perfect for high-awareness stages."
     },
     {
-      name: "Lydia Nkosi",
-      avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=120&h=120",
+      name: "Naledi Mabena",
+      avatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Solopreneur",
       brand: "Sela Tea Blends",
       metric: "Conversion rose from 1.9% to 4.1%",
@@ -252,8 +252,11 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
               onClick={onClaimClick}
               className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
             >
-              CLAIM YOUR SPOT NOW
+              CLAIM YOUR SPOT — $300 DEPOSIT
             </button>
+            <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
+              💰 LOCK IN THE $600 LAUNCH PRICE (50% OFF) • REVISIONS FULLY INCLUDED
+            </p>
           </div>
         </div>
 

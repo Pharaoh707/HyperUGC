@@ -117,7 +117,7 @@ export default function FAQSection({ accentColor }: FAQSectionProps) {
         </div>
 
         {/* Right Side: Guarantee block */}
-        <div className="lg:col-span-5 flex items-start justify-center lg:pt-[214px]">
+        <div className="lg:col-span-5 flex items-start justify-center lg:pt-[250px]">
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -194,7 +194,7 @@ export default function FAQSection({ accentColor }: FAQSectionProps) {
               {/* Central notice */}
               <div className="pt-4 border-t border-slate-200/50 text-center">
                 <span className="text-[11px] text-slate-500 font-semibold leading-relaxed">
-                  Remaining <span className={glowText}> balance only due on delivery</span>. If we fail to deliver, you don't owe single cent more. Guaranteed.
+                  Remaining <span className={glowText}> balance only due on delivery</span>.
                 </span>
               </div>
 

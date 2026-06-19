@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { SPOTS_REMAINING, getCountdownTarget } from "../counter";
+import PremiumSparklesEffect from "./PremiumSparklesEffect";
 
 interface CTARepeatSectionProps {
   onClaimClick: () => void;
@@ -107,13 +108,17 @@ export default function CTARepeatSection({ onClaimClick, accentColor }: CTARepea
           </div>
 
           {/* CTA */}
-          <div className="pt-2 z-10 relative">
+          <div className="pt-2 z-10 relative flex flex-col items-center space-y-3">
             <button
               onClick={onClaimClick}
-              className={`shimmer-btn px-9 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
+              className={`shimmer-btn relative overflow-hidden px-9 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
             >
-              CLAIM YOUR SPOT NOW
+              <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
+              CLAIM YOUR SPOT — $300 DEPOSIT
             </button>
+            <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
+              💰 $600 INTRO PRICE (REG. $1,200) • ONLY 50% DUE TODAY • 100% SATISFACTION GUARANTEED
+            </p>
           </div>
 
         </div>

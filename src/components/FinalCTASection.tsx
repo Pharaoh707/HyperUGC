@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ShieldCheck, Calendar, Zap, RefreshCw, Layers } from "lucide-react";
 import { getCountdownTarget } from "../counter";
+import PremiumSparklesEffect from "./PremiumSparklesEffect";
 
 interface FinalCTASectionProps {
   onPaymentCheckout: () => void;
@@ -11,6 +12,40 @@ interface FinalCTASectionProps {
 export default function FinalCTASection({ onPaymentCheckout, accentColor }: FinalCTASectionProps) {
   const [showPrice, setShowPrice] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 25, seconds: 0 });
+  const [counter, setCounter] = useState(1200);
+
+  useEffect(() => {
+    if (!showPrice) {
+      setCounter(1200);
+      return;
+    }
+    const start = 1200;
+    const end = 300;
+    const duration = 2200; // 2.2 seconds countdown
+    const startTime = performance.now();
+
+    let animationFrameId: number;
+
+    const animate = (time: number) => {
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing out cubic to decelerate heavily towards $300
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.round(start - easedProgress * (start - end));
+
+      setCounter(currentValue);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [showPrice]);
 
   useEffect(() => {
     const target = getCountdownTarget();
@@ -149,13 +184,13 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.3, type: "spring", stiffness: 120 }}
+                    transition={{ delay: 0.1, type: "spring", stiffness: 120 }}
                     className="space-y-1 block"
                   >
                     <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block font-bold">DEPOSIT TO SECURE TIME</span>
                     <div className="flex flex-col justify-center items-center">
-                    <span className={`text-5xl sm:text-6xl font-black font-display tracking-tight leading-none block ${accentText} ${glowShadow} px-4 py-2 bg-white rounded-2xl border-2 ${accentBorder} animate-pulse-slow`}>
-                      $300
+                    <span className={`text-5xl sm:text-6xl font-black font-display tracking-tight leading-none block ${accentText} ${glowShadow} px-4 py-2 bg-white rounded-2xl border-2 ${accentBorder} animate-pulse-slow min-w-[140px]`}>
+                      ${counter.toLocaleString()}
                     </span>
                     <span className="text-xs text-slate-400 font-semibold font-mono mt-2">DUE TODAY (-50% OF PACKAGE VALUE)</span>
                   </div>
@@ -169,8 +204,9 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
             <div className="w-full pt-1.5">
               <button
                 onClick={onPaymentCheckout}
-                className={`shimmer-btn w-full h-[58px] rounded-xl text-xs sm:text-sm font-black text-white hover:brightness-105 cursor-pointer flex items-center justify-center space-x-2 px-4 select-none ${btnGrad}`}
+                className={`shimmer-btn relative overflow-hidden w-full h-[58px] rounded-xl text-xs sm:text-sm font-black text-white hover:brightness-105 cursor-pointer flex items-center justify-center space-x-2 px-4 select-none ${btnGrad}`}
               >
+                <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
                 <span>CLAIM YOUR SPOT NOW — $300 DEPOSIT TO START</span>
               </button>
             </div>

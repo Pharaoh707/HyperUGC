@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import PremiumSparklesEffect from "./PremiumSparklesEffect";
 
 interface HeroSectionProps {
   onClaimClick: () => void;
@@ -281,8 +282,9 @@ export default function HeroSection({ onClaimClick, accentColor, onVideoLoaded }
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 pt-2">
             <button
               onClick={onClaimClick}
-              className={`shimmer-btn px-9 py-4.5 rounded-xl text-sm sm:text-base font-black tracking-widest transition-all duration-150 transform cursor-pointer text-center select-none text-white uppercase ${btnBg}`}
+              className={`shimmer-btn relative overflow-hidden px-9 py-4.5 rounded-xl text-sm sm:text-base font-black tracking-widest transition-all duration-150 transform cursor-pointer text-center select-none text-white uppercase ${btnBg}`}
             >
+              <PremiumSparklesEffect color="gold" />
               CLAIM YOUR SPOT NOW!
             </button>
             

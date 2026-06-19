@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import TextReveal from "./TextReveal";
+import { getVimeoVideoData } from "./vimeoCache";
 
 interface PortfolioSectionProps {
   accentColor: "gold" | "violet";
@@ -14,24 +15,47 @@ interface VideoItem {
   aspectRatio: string; // Dynamic ratio mapping e.g. "aspect-[9/16]"
 }
 
-// Optimized Lazy loading Vimeo player wrapper with background stream optimization
-function LazyVimeo({ vimeoId, label, aspectRatio }: { vimeoId: string; label: string; aspectRatio: string }) {
+// Optimized Lazy loading Vimeo player wrapper with background stream optimization and reconnection logic
+function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: string; isVertical: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isIntersecting, setIsIntersecting] = useState(true);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
   useEffect(() => {
-    // Keep observer active as a backup, but initialize to true to force immediate load on mount
+    // 1. Fetch thumbnail/data details
+    getVimeoVideoData(vimeoId)
+      .then((data) => {
+        setThumbnailUrl(data.thumbnailUrl);
+      })
+      .catch((err) => {
+        console.warn("Failed to load Vimeo thumbnail:", err);
+      });
+
+    let debounceTimeout: any = null;
+
+    // 2. Setup intersection observer that toggles active loads as user scrolls
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsIntersecting(true);
-            observer.disconnect();
+            if (debounceTimeout) clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+              setIsIntersecting(true);
+            }, 100); // stable wait before initialization
+          } else {
+            if (debounceTimeout) {
+              clearTimeout(debounceTimeout);
+              debounceTimeout = null;
+            }
+            // Smart unload when scrolling far out of view to avoid concurrent Cloudflare/Vimeo session blocks
+            setIsIntersecting(false);
+            setIframeLoaded(false);
           }
         });
       },
       {
-        rootMargin: "600px", // Trigger earlier load for seamless speed
+        rootMargin: "300px", // Preload just-in-time and unload when 300px away
         threshold: 0.01,
       }
     );
@@ -40,27 +64,50 @@ function LazyVimeo({ vimeoId, label, aspectRatio }: { vimeoId: string; label: st
       observer.observe(containerRef.current);
     }
 
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+      observer.disconnect();
+    };
+  }, [vimeoId]);
+
+  // Use dnt=1 to prevent third party cookie tracking, bypassing iframe sandboxing connection errors!
+  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=360p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full bg-slate-950/40 rounded-2xl overflow-hidden ${aspectRatio}`}>
-      {isIntersecting ? (
+    <div ref={containerRef} className="relative w-full h-full bg-slate-950">
+      {isIntersecting && (
         <iframe
-          src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=720p`}
-          className="absolute inset-0 w-full h-full border-0 rounded-2xl scale-[1.01]"
+          src={embedUrl}
+          className="absolute inset-0 w-full h-full border-0 scale-[1.01] object-cover object-center"
           allow="autoplay; fullscreen; picture-in-picture"
           title={label}
-          style={{ objectFit: "cover" }}
+          referrerPolicy="strict-origin-when-cross-origin" // crucial: send secure parent origin so Vimeo allows playback!
+          onLoad={() => setIframeLoaded(true)}
         />
-      ) : (
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-900/60 border border-white/5 text-center p-4">
-          <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-3" />
-          <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
-            Fast Stream Loading...
-          </span>
-        </div>
       )}
+      
+      {/* Static poster image / Skeleton placeholder overlay */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-700 ease-in-out pointer-events-none ${
+          iframeLoaded ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={label}
+            className="w-full h-full object-cover scale-[1.01]"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950 text-center p-4">
+            <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-3" />
+            <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
+              Fast Stream Loading...
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -119,32 +166,6 @@ export default function PortfolioSection({ accentColor }: PortfolioSectionProps)
     }
   ];
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.12,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 60 
-    },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        type: "spring",
-        stiffness: 80,
-        damping: 15,
-        mass: 1
-      }
-    }
-  };
-
   return (
     <section className="relative py-24 px-4 sm:px-6 md:px-8 z-10 bg-transparent">
       <div className="max-w-7xl mx-auto space-y-16">
@@ -170,44 +191,99 @@ export default function PortfolioSection({ accentColor }: PortfolioSectionProps)
           </motion.p>
         </div>
 
-        {/* Floating vertical layout grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 pt-4"
-        >
+        {/* Floating Masonry Layout column grid */}
+        <div className="columns-1 sm:columns-2 md:columns-3 xl:columns-4 gap-6 lg:gap-8 pt-4 [column-fill:_balance]">
           {list.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              variants={itemVariants}
-              whileHover={{ y: -10, scale: 1.02 }}
-              style={{ originX: 0.5, originY: 0.5 }}
-              // Asynchronous float offsets for floating cards theme
-              className="relative p-2.5 rounded-[22px] bg-white/20 backdrop-blur-xl border border-white/25 shadow-[0_12px_40px_rgba(0,0,0,0.06)] group transition-all duration-300"
-            >
-              <div className={`relative ${item.aspectRatio} rounded-2xl overflow-hidden w-full bg-slate-950/20`}>
-                {/* Embed lazy-loaded player in native video ratio */}
-                <LazyVimeo vimeoId={item.vimeoId} label={item.label} aspectRatio={item.aspectRatio} />
-
-                {/* Frosted Glass Overlay Caption Bar */}
-                <div className="absolute inset-x-3 bottom-3 p-3.5 bg-gradient-to-b from-black/25 via-black/45 to-black/60 backdrop-blur-md border border-white/10 rounded-xl flex flex-col justify-end transition-all duration-300 shadow-xl">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white text-xs sm:text-sm font-sans font-black tracking-wide uppercase">
-                      {item.label}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-white/80 font-medium mt-1 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+            <PortfolioCard key={item.id} item={item} idx={idx} />
           ))}
-        </motion.div>
+        </div>
 
       </div>
     </section>
+  );
+}
+
+interface PortfolioCardProps {
+  key?: string;
+  item: VideoItem;
+  idx: number;
+}
+
+function PortfolioCard({ item, idx }: PortfolioCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [hasEntered, setHasEntered] = useState(false);
+  const [isVertical, setIsVertical] = useState(true);
+  const [aspectClass, setAspectClass] = useState("aspect-[9/16]");
+
+  // Fetch vertical/landscape orientation from Vimeo metadata at runtime
+  useEffect(() => {
+    getVimeoVideoData(item.vimeoId)
+      .then((data) => {
+        setIsVertical(data.isVertical);
+        setAspectClass(data.isVertical ? "aspect-[9/16]" : "aspect-[16/9]");
+      })
+      .catch((err) => {
+        console.warn("Failed to retrieve dynamic format properties:", err);
+      });
+  }, [item.vimeoId]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasEntered(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: "0px 0px -80px 0px", // Trigger when the card starts arriving
+        threshold: 0.1,
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 50 }}
+      animate={hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      whileHover={{ y: -10, scale: 1.02 }}
+      transition={
+        hasEntered
+          ? {
+              y: { type: "spring", stiffness: 85, damping: 16, mass: 1, delay: (idx % 4) * 0.08 },
+              opacity: { duration: 0.6, ease: "easeOut", delay: (idx % 4) * 0.08 },
+            }
+          : { duration: 0.2 }
+      }
+      style={{ originX: 0.5, originY: 0.5 }}
+      // Asynchronous float offsets for floating cards theme with Masonry support
+      className="break-inside-avoid inline-block w-full mb-6 relative p-2.5 rounded-[22px] bg-white/45 backdrop-blur-md border border-white/30 shadow-[0_12px_40px_rgba(0,0,0,0.06)] group transition-all duration-300"
+    >
+      <div className={`relative ${aspectClass} rounded-2xl overflow-hidden w-full bg-slate-950 transition-all duration-500`}>
+        {/* Embed lazy-loaded player in native video ratio */}
+        <LazyVimeo vimeoId={item.vimeoId} label={item.label} isVertical={isVertical} />
+
+        {/* Frosted Glass Overlay Caption Bar */}
+        <div className="absolute inset-x-3 bottom-3 p-3.5 bg-gradient-to-b from-black/25 via-black/45 to-black/60 backdrop-blur-md border border-white/10 rounded-xl flex flex-col justify-end transition-all duration-300 shadow-xl">
+          <div className="flex justify-between items-center">
+            <span className="text-white text-xs sm:text-sm font-sans font-black tracking-wide uppercase">
+              {item.label}
+            </span>
+          </div>
+          <p className="text-[10px] text-white/80 font-medium mt-1 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+      </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { SPOTS_REMAINING } from "../counter";
+import PremiumSparklesEffect from "./PremiumSparklesEffect";
 
 interface OfferRevealSectionProps {
   onClaimClick: () => void;
@@ -169,15 +170,18 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-1">
                 <button
                   onClick={onClaimClick}
-                  className="shimmer-btn px-6 py-3.5 rounded-xl text-[11px] font-black tracking-widest transition-all cursor-pointer text-center select-none text-white uppercase bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[5px] border-[#8e732c] shadow-[0_8px_20px_rgba(201,168,76,0.3)] hover:brightness-105 active:translate-y-[3px] active:border-b-[1px] active:shadow-[0_2px_8px_rgba(201,168,76,0.2)]"
+                  className="shimmer-btn relative overflow-hidden px-6 py-3.5 rounded-xl text-[11px] font-black tracking-widest transition-all cursor-pointer text-center select-none text-white uppercase bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[5px] border-[#8e732c] shadow-[0_8px_20px_rgba(201,168,76,0.3)] hover:brightness-105 active:translate-y-[3px] active:border-b-[1px] active:shadow-[0_2px_8px_rgba(201,168,76,0.2)]"
                 >
-                  CLAIM YOUR SPOT NOW
+                  <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
+                  CLAIM YOUR SPOT — $300 DEPOSIT
                 </button>
                 
                 <div className="flex items-center space-x-2 text-slate-500 text-[10px] font-mono justify-center sm:justify-start">
-                  <span>⏱️ Setup Time: 10 min</span>
+                  <span>💰 $300 to start ($600 total)</span>
                   <span>•</span>
-                  <span>⚡ Slots Lock Instant</span>
+                  <span>⏱️ Setup: 10 min</span>
+                  <span>•</span>
+                  <span>⚡ Instant Lock</span>
                 </div>
               </div>
             </motion.div>

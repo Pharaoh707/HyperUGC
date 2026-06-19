@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import WebGLBackground from "./components/WebGLBackground";
 import TopBar from "./components/TopBar";
@@ -20,30 +20,55 @@ import GlobalLoader from "./components/GlobalLoader";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import { Sparkles, HelpCircle, Flame } from "lucide-react";
 
-// Clean transparent luxury spacer to blend section boundaries smoothly with zero rigid borders or lines
+// Clean transparent luxury spacer to blend section boundaries with staggered premium golden segments
+const dividerContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const dividerSegmentVariants = {
+  hidden: { opacity: 0, y: 6, scale: 0.6 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 1.2,
+      ease: [0.16, 1, 0.3, 1], // Ultra smooth premium cubic-bezier ease-out
+    },
+  },
+};
+
 function SectionDivider() {
   return (
-    <div className="w-full h-8 pointer-events-none bg-transparent" />
+    <motion.div
+      variants={dividerContainerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-40px" }}
+      className="w-full h-12 pointer-events-none flex items-center justify-center space-x-4 select-none bg-transparent"
+    >
+      <motion.div
+        variants={dividerSegmentVariants}
+        className="w-1 h-1 rounded-full bg-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]"
+      />
+      <motion.div
+        variants={dividerSegmentVariants}
+        className="w-1.5 h-1.5 rounded-full bg-amber-500/45 shadow-[0_0_10px_rgba(245,158,11,0.3)]"
+      />
+      <motion.div
+        variants={dividerSegmentVariants}
+        className="w-1 h-1 rounded-full bg-amber-500/30 shadow-[0_0_8px_rgba(245,158,11,0.2)]"
+      />
+    </motion.div>
   );
 }
-
-// Unique high-performance Vimeo IDs to prefetch globally for instant streaming
-const PREFETCH_VIMEO_IDS = [
-  // Portfolio section vertical ads
-  "1188912682",
-  "1188913854",
-  "1188913175",
-  "1188914310",
-  "1188914606",
-  "1188915268",
-  "1188915732",
-  // Format types section bento ads
-  "1188918140",
-  "1188916883",
-  "1188916214",
-  "1188917925",
-  "1188917415"
-];
 
 // Testimonial & Social Proof avatar photos to preload to prevent any broken or slow pictures
 const PRELOAD_AVATARS = [
@@ -82,38 +107,35 @@ export default function App() {
   // Track scroll position for the floating action button shortcut appearance
   const [showFAB, setShowFAB] = useState(false);
 
-  // Global dynamic element injector for prefetching vimeo video frames and preloading social proof avatars
+  // Floating Action Button Magnetic Content Offset
+  const [magneticOffset, setMagneticOffset] = useState({ x: 0, y: 0 });
+
+  const handleFABMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const x = e.clientX - centerX;
+    const y = e.clientY - centerY;
+    
+    // Smooth relative factor
+    const factor = 0.35;
+    const maxShift = 12; // Extremely sleek and premium, not too sudden
+    const shiftX = Math.max(-maxShift, Math.min(maxShift, x * factor));
+    const shiftY = Math.max(-maxShift, Math.min(maxShift, y * factor));
+    
+    setMagneticOffset({ x: shiftX, y: shiftY });
+  };
+
+  const handleFABMouseLeave = () => {
+    setMagneticOffset({ x: 0, y: 0 });
+  };
+
+  // Global dynamic element injector for preloading social proof avatars
   useEffect(() => {
     const spawnedElements: HTMLElement[] = [];
 
-    // 1. Prefetch Vimeo iframe pages for instant load on render
-    PREFETCH_VIMEO_IDS.forEach((id) => {
-      // Prefetch with parameters used in PortfolioSection
-      const link1 = document.createElement("link");
-      link1.rel = "prefetch";
-      link1.as = "document";
-      link1.href = `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=720p`;
-      document.head.appendChild(link1);
-      spawnedElements.push(link1);
-
-      // Prefetch with parameters used in FormatTypesSection
-      const link2 = document.createElement("link");
-      link2.rel = "prefetch";
-      link2.as = "document";
-      link2.href = `https://player.vimeo.com/video/${id}?autoplay=1&muted=1&background=1&loop=1`;
-      document.head.appendChild(link2);
-      spawnedElements.push(link2);
-
-      // Simple base player link prefetch
-      const linkbase = document.createElement("link");
-      linkbase.rel = "prefetch";
-      linkbase.as = "document";
-      linkbase.href = `https://player.vimeo.com/video/${id}`;
-      document.head.appendChild(linkbase);
-      spawnedElements.push(linkbase);
-    });
-
-    // 2. Preload Social Proof avatar pictures for instant high-retention rendering
+    // Preload Social Proof avatar pictures for instant high-retention rendering
     PRELOAD_AVATARS.forEach((url) => {
       // Inject high-priority browser link relations
       const linkImg = document.createElement("link");
@@ -202,13 +224,21 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.8, y: 30 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             onClick={handleClaimSpotClick}
-            className="fixed bottom-6 right-6 z-[99992] flex items-center space-x-3 px-5 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-[0_8px_30px_rgba(201,168,76,0.35)] border-b-[4px] border-[#8e732c] cursor-pointer backdrop-blur-md hover:brightness-105 active:translate-y-[2px] active:border-b-[1px] transition-all duration-100 bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33]"
+            onMouseMove={handleFABMouseMove}
+            onMouseLeave={handleFABMouseLeave}
+            className="fixed bottom-6 right-6 z-[99992] flex items-center justify-center px-5 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-[0_8px_30px_rgba(201,168,76,0.35)] border-b-[4px] border-[#8e732c] cursor-pointer backdrop-blur-md hover:brightness-105 active:translate-y-[2px] active:border-b-[1px] transition-all duration-100 bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33]"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="font-mono tracking-[0.14em]">CLAIM YOUR SPOT NOW</span>
+            <motion.div
+              animate={{ x: magneticOffset.x, y: magneticOffset.y }}
+              transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.1 }}
+              className="flex items-center space-x-3 pointer-events-none"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-mono tracking-[0.14em]">CLAIM YOUR SPOT NOW</span>
+            </motion.div>
           </motion.button>
         )}
       </AnimatePresence>

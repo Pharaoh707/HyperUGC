@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import TextReveal from "./TextReveal";
+import { getVimeoVideoData } from "./vimeoCache";
 
 interface FormatTypesSectionProps {
   onClaimClick: () => void;
@@ -18,42 +19,96 @@ interface FormatItem {
 
 function LazyFormatVimeo({ vimeoId, label, isHovered }: { vimeoId: string; label: string; isHovered: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isIntersecting, setIsIntersecting] = useState(true);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [isVertical, setIsVertical] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Keep observer active as a backup, but initialize to true to force immediate load on mount
+    // 1. Fetch metadata via optimized/cached retriever
+    getVimeoVideoData(vimeoId)
+      .then((data) => {
+        setThumbnailUrl(data.thumbnailUrl);
+        setIsVertical(data.isVertical);
+      })
+      .catch((err) => {
+        console.warn("Failed to load Vimeo metadata:", err);
+      });
+
+    let debounceTimeout: any = null;
+
+    // 2. Setup intersection observer with automatic unload to release connection slots
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsIntersecting(true);
-            observer.disconnect();
+            if (debounceTimeout) clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+              setIsIntersecting(true);
+            }, 100);
+          } else {
+            if (debounceTimeout) {
+              clearTimeout(debounceTimeout);
+              debounceTimeout = null;
+            }
+            // Smart unload
+            setIsIntersecting(false);
+            setIframeLoaded(false);
           }
         });
       },
-      { rootMargin: "800px" }
+      {
+        rootMargin: "300px",
+        threshold: 0.01,
+      }
     );
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      if (debounceTimeout) clearTimeout(debounceTimeout);
+      observer.disconnect();
+    };
+  }, [vimeoId]);
+
+  // Use dnt=1 option to bypass Cloudflare security block inside sandbox browsers!
+  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=360p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
+
+  const aspectClass = isVertical === true ? "aspect-[9/16] max-h-[460px] sm:max-h-[520px]" : "aspect-video";
 
   return (
-    <div ref={containerRef} className="relative w-full aspect-video bg-slate-950 rounded-xl overflow-hidden shadow-inner">
-      {isIntersecting ? (
+    <div ref={containerRef} className={`relative w-full ${aspectClass} mx-auto bg-slate-950 rounded-xl overflow-hidden shadow-inner font-sans transition-all duration-300`}>
+      {isIntersecting && (
         <iframe
-          src={`https://player.vimeo.com/video/${vimeoId}?autoplay=${isHovered ? "1" : "0"}&muted=1&background=1&loop=1`}
+          src={embedUrl}
           className="absolute inset-0 w-full h-full border-0 rounded-xl pointer-events-none transform scale-[1.01]"
           allow="autoplay; fullscreen"
           title={label}
+          referrerPolicy="strict-origin-when-cross-origin" // send correct site domain so Vimeo does not block request
+          onLoad={() => setIframeLoaded(true)}
         />
-      ) : (
-        <div className="absolute inset-0 flex justify-center items-center bg-slate-900">
-          <div className="w-8 h-8 border-2 border-slate-700 border-t-slate-500 animate-spin rounded-full" />
-        </div>
       )}
+
+      {/* Static poster image / Skeleton placeholder overlay */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-700 ease-in-out pointer-events-none ${
+          iframeLoaded ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={label}
+            className="w-full h-full object-cover rounded-xl scale-[1.01]"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="absolute inset-0 flex justify-center items-center bg-slate-900">
+            <div className="w-8 h-8 border-2 border-slate-700 border-t-slate-500 animate-spin rounded-full" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -83,7 +138,31 @@ function BentoCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
+  const [hasEntered, setHasEntered] = useState(false);
   const isHovered = hoveredCard === item.id;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasEntered(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: "0px 0px -80px 0px", // Trigger when the card starts arriving
+        threshold: 0.1,
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -110,18 +189,31 @@ function BentoCard({
     <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ delay: idx * 0.08, duration: 0.6 }}
+      animate={
+        hasEntered
+          ? {
+              opacity: 1,
+              rotateX: isHovered ? rotateX : 0,
+              rotateY: isHovered ? rotateY : 0,
+              scale: isHovered ? 1.015 : 1,
+              y: isHovered ? -5 : 0
+            }
+          : { opacity: 0, y: 50 }
+      }
+      transition={{
+        y: hasEntered
+          ? isHovered
+            ? { type: "spring", stiffness: 150, damping: 20 }
+            : { type: "spring", stiffness: 85, damping: 16, delay: (idx % 3) * 0.08 }
+          : { duration: 0.2 },
+        opacity: { duration: 0.6, ease: "easeOut", delay: (idx % 3) * 0.08 },
+        scale: { type: "spring", stiffness: 150, damping: 20 },
+        rotateX: { type: "spring", stiffness: 150, damping: 20 },
+        rotateY: { type: "spring", stiffness: 150, damping: 20 }
+      }}
       onMouseEnter={() => setHoveredCard(item.id)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={{
-        rotateX: isHovered ? rotateX : 0,
-        rotateY: isHovered ? rotateY : 0,
-        scale: isHovered ? 1.015 : 1,
-        y: isHovered ? -5 : 0
-      }}
       style={{
         perspective: "1000px",
         transformStyle: "preserve-3d"
@@ -267,13 +359,16 @@ export default function FormatTypesSection({ onClaimClick, accentColor }: Format
         </div>
 
         {/* Shimmer button action block below grid */}
-        <div className="text-center pt-8">
+        <div className="text-center pt-8 flex flex-col items-center space-y-3 pb-4">
           <button
             onClick={onClaimClick}
             className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
           >
-            CLAIM YOUR SPOT NOW
+            CLAIM YOUR SPOT — $300 DEPOSIT
           </button>
+          <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
+            💰 INTRODUCTORY $600 RATE AUTOMATICALLY LOCKED • ONLY 50% DUE TODAY
+          </p>
         </div>
 
       </div>
