@@ -10,6 +10,7 @@ interface Testimonial {
   metric: string;
   headline: string;
   quote: string;
+  industry: "E-commerce" | "SaaS" | "Personal Brand";
 }
 
 interface TestimonialCardProps {
@@ -219,12 +220,18 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
           </div>
         </div>
 
-        <div className="text-left">
-          <h5 className="text-xs sm:text-sm font-sans font-extrabold text-slate-800 tracking-tight">
+        <div className="text-left flex-1 min-w-0">
+          <h5 className="text-xs sm:text-sm font-sans font-extrabold text-slate-800 tracking-tight truncate">
             {item.name}
           </h5>
-          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold tracking-wide leading-none mt-0.5">
-            {item.position} • <span className="text-slate-500 font-bold">{item.brand}</span>
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold tracking-wide leading-none mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span>{item.position}</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-500 font-bold">{item.brand}</span>
+            <span className="text-slate-300">•</span>
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100/90 text-[9px] font-mono uppercase font-black tracking-wider text-slate-500 border border-slate-250/20">
+              {item.industry}
+            </span>
           </p>
         </div>
       </div>

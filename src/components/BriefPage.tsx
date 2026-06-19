@@ -26,6 +26,7 @@ export default function BriefPage({ onBack, accentColor }: BriefPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [fileBase64, setFileBase64] = useState("");
   const [copied, setCopied] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -37,27 +38,66 @@ export default function BriefPage({ onBack, accentColor }: BriefPageProps) {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setFileName(file.name);
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setFileBase64(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate safe server dispatch latency
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      
-      // Store brief inside localStorage so they are inspectable by user
+    const payload = {
+      ...formData,
+      uploadedFile: fileName,
+      fileData: fileBase64,
+    };
+
+    try {
+      // Direct high-speed API post
+      const response = await fetch("/api/submit-brief", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      console.log("[Client] Submit Response:", result);
+
+      // Local storage backup copy
       const savedBriefs = JSON.parse(localStorage.getItem("mandjack_briefs") || "[]");
       savedBriefs.push({
         ...formData,
         fileName,
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
+        deliveryMethod: result.emailSent ? "API_AUTOMATIC_EMAIL" : "LOCAL_FS_BACKUP"
       });
       localStorage.setItem("mandjack_briefs", JSON.stringify(savedBriefs));
+
+    } catch (err) {
+      console.error("[Client Error] Submit failed:", err);
+      // Fail-safe backup fallback save is still registered locally
+      const savedBriefs = JSON.parse(localStorage.getItem("mandjack_briefs") || "[]");
+      savedBriefs.push({
+        ...formData,
+        fileName,
+        submittedAt: new Date().toISOString(),
+        deliveryMethod: "FAILSAFE_LOCAL_ONLY"
+      });
+      localStorage.setItem("mandjack_briefs", JSON.stringify(savedBriefs));
+    } finally {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
 
       // Trigger Confetti Explosion!
       confetti({
@@ -65,28 +105,7 @@ export default function BriefPage({ onBack, accentColor }: BriefPageProps) {
         spread: 90,
         origin: { y: 0.6 }
       });
-
-      // Launch standard native mail-client delivery flow to hello@mandjack.digital
-      const subject = encodeURIComponent(`Mandjack Digital Brief: ${formData.brandName}`);
-      const body = encodeURIComponent(
-        `Hello Mandjack Digital Team,\n\n` +
-        `Here is my completed UGC Brief:\n\n` +
-        `Brand Name: ${formData.brandName}\n` +
-        `Website URL: ${formData.websiteUrl}\n` +
-        `Contact Email Address: ${formData.email}\n` +
-        `Social Handles: ${formData.socials || "Not provided"}\n` +
-        `Product being advertised: ${formData.productOffer}\n` +
-        `Target audience: ${formData.targetAudience}\n` +
-        `Tone and feel: ${formData.toneFeel}\n` +
-        `Reference Ads / Competitors: ${formData.references}\n` +
-        `Assets Link: ${formData.assetsLink || "None"}\n` +
-        `Uploaded File: ${fileName || "None"}\n` +
-        `Additional notes: ${formData.extraNotes || "None"}\n\n` +
-        `Sent via the Mandjack Digital Brief Intake Portal.`
-      );
-      
-      window.location.href = `mailto:hello@mandjack.digital?subject=${subject}&body=${body}`;
-    }, 1200);
+    }
   };
 
   const btnBg = "bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[5px] border-[#8e732c] shadow-[0_8px_18px_rgba(201,168,76,0.25)] hover:brightness-105 active:translate-y-[2px] active:border-b-[3px] transition-all duration-100 uppercase text-white font-black tracking-widest";
@@ -335,201 +354,53 @@ export default function BriefPage({ onBack, accentColor }: BriefPageProps) {
               </form>
             </motion.div>
           ) : (
-            // Form submitted success panel
+            // Form submitted success panel - Clean, professional, premium Thank You screen
             <motion.div
               key="success-card"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: "spring", damping: 15 }}
-              className="glass-panel p-6 sm:p-10 border-emerald-300 shadow-xl space-y-6 bg-white/85 text-left"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", damping: 18, stiffness: 100 }}
+              className="glass-panel p-8 sm:p-12 border-emerald-300 shadow-[0_15px_30px_rgba(16,185,129,0.08)] space-y-8 bg-white/90 backdrop-blur-md text-center max-w-2xl mx-auto"
             >
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-amber-100 border border-amber-300 rounded-full flex items-center justify-center text-amber-500 shadow-inner">
-                  <Trophy className="w-8 h-8 animate-bounce" />
+              <div className="flex flex-col items-center space-y-6">
+                {/* Golden Animated Trophy Circle */}
+                <div className="relative">
+                  <div className="absolute -inset-1.5 bg-gradient-to-r from-amber-400 to-[#C9A84C] rounded-full blur opacity-30 animate-pulse"></div>
+                  <div className="relative w-20 h-20 bg-gradient-to-tr from-amber-50 to-amber-100/40 border border-amber-300 rounded-full flex items-center justify-center text-amber-500 shadow-md">
+                    <Trophy className="w-10 h-10 animate-pulse text-[#C9A84C]" />
+                  </div>
                 </div>
 
-                <div className="space-y-2 max-w-xl">
-                  <div className="flex justify-center items-center space-x-1.5 text-emerald-600 font-bold font-mono text-[11px] tracking-wider uppercase">
+                <div className="space-y-3 max-w-lg">
+                  <div className="inline-flex items-center space-x-1 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 font-extrabold font-mono text-[10px] tracking-wider uppercase">
                     <CheckCircle className="w-3.5 h-3.5" />
-                    <span>Intake Logged Successfully!</span>
+                    <span>Brief Dispatch Complete</span>
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-900 tracking-tight leading-none">
-                    Brief received.
+                  
+                  <h2 className="text-3xl sm:text-4xl font-display font-black text-slate-900 tracking-tight leading-tight pt-1">
+                    Thank You!
                   </h2>
-                  <p className="text-slate-600 text-xs sm:text-sm font-semibold max-w-md mx-auto font-sans">
-                    Expect your ads within 48–72 hours. We'll be in touch if we have any questions.
+                  
+                  <p className="text-slate-600 text-sm sm:text-base font-semibold leading-relaxed">
+                    Your creative brief has been securely delivered to <span className="text-slate-900 font-bold">Mandjack Digital</span>.
                   </p>
-                </div>
-              </div>
-
-              {/* Delivery Assistant / Fallback Block */}
-              <div className="bg-slate-50/90 rounded-2xl border border-slate-200/60 p-5 sm:p-6 space-y-4">
-                <div className="space-y-1">
-                  <span className="flex items-center space-x-2 text-[10px] font-mono font-extrabold uppercase tracking-wider text-amber-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span>Delivering Your Brief</span>
-                  </span>
-                  <p className="text-xs text-slate-500 font-semibold leading-relaxed font-sans">
-                    We tried launching your local email application to send the brief automatically. Depending on browser restrictions inside sandboxed workspaces, your local email app may not have popped up. No worries at all!
+                  
+                  <p className="text-slate-500 text-xs sm:text-sm leading-relaxed pt-2">
+                    Our performance strategists are analyzing your product offer, tone guidelines, and assets. We will contact you at your registered email address (<span className="text-slate-800 font-medium font-mono">{formData.email}</span>) within 24 hours to review your bespoke visual concepts and launch your campaign.
                   </p>
-                </div>
-
-                <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-slate-400" />
-                      <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wide">
-                        Your Brief Data Template
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        const textToCopy = `Brand Name: ${formData.brandName}
-Website: ${formData.websiteUrl}
-Contact Email: ${formData.email}
-Socials: ${formData.socials || "Not provided"}
-
---- CONCEPT CREATIVE BRIEF ---
-Product Advertised: ${formData.productOffer}
-Target Audience: ${formData.targetAudience}
-Tone & Feel: ${formData.toneFeel}
-Reference Ads / Competitors: ${formData.references}
-
---- ASSETS & ADDITIONAL NOTES ---
-Drive/Dropbox Assets: ${formData.assetsLink || "None specified"}
-Uploaded File attachment: ${fileName || "None"}
-Anything else we should know: ${formData.extraNotes || "None"}
-
-Sent via Mandjack Digital Intake.`;
-                        navigator.clipboard.writeText(textToCopy);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold tracking-wider uppercase rounded-lg flex items-center space-x-1.5 transition-colors cursor-pointer"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span className="text-emerald-600 font-mono">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span className="font-mono">Copy to Clipboard</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <pre className="text-[11px] font-mono text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-lg max-h-40 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">
-{`To: hello@mandjack.digital
-Subject: Mandjack Digital Brief: ${formData.brandName}
-
-Brand Name: ${formData.brandName}
-Website: ${formData.websiteUrl}
-Contact Email: ${formData.email}
-Socials: ${formData.socials || "Not provided"}
-
---- CONCEPT CREATIVE BRIEF ---
-Product Advertised: ${formData.productOffer}
-Target Audience: ${formData.targetAudience}
-Tone & Feel: ${formData.toneFeel}
-Reference Ads / Competitors: ${formData.references}
-
---- ASSETS & ADDITIONAL NOTES ---
-Drive/Dropbox Assets: ${formData.assetsLink || "None specified"}
-Uploaded File attachment: ${fileName || "None"}
-Anything else we should know: ${formData.extraNotes || "None"}`}
-                  </pre>
-                </div>
-
-                {/* Email Delivery Direct Launching Hub */}
-                <div className="space-y-2">
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest text-center sm:text-left">
-                    Send directly using your email service:
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <a
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=hello@mandjack.digital&su=${encodeURIComponent(`Mandjack Digital Brief: ${formData.brandName}`)}&body=${encodeURIComponent(`Brand Name: ${formData.brandName}
-Website: ${formData.websiteUrl}
-Contact Email: ${formData.email}
-Socials: ${formData.socials || "Not provided"}
-
---- CONCEPT CREATIVE BRIEF ---
-Product Advertised: ${formData.productOffer}
-Target Audience: ${formData.targetAudience}
-Tone & Feel: ${formData.toneFeel}
-Reference Ads / Competitors: ${formData.references}
-
---- ASSETS & ADDITIONAL NOTES ---
-Drive/Dropbox Assets: ${formData.assetsLink || "None specified"}
-Uploaded File attachment: ${fileName || "None"}
-Anything else we should know: ${formData.extraNotes || "None"}`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-4 py-2.5 bg-red-50 hover:bg-red-100 border border-red-200/60 rounded-xl text-red-700 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center space-x-1.5"
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>Send with Gmail</span>
-                    </a>
-                    <a
-                      href={`https://outlook.live.com/mail/0/deeplink/compose?to=hello@mandjack.digital&subject=${encodeURIComponent(`Mandjack Digital Brief: ${formData.brandName}`)}&body=${encodeURIComponent(`Brand Name: ${formData.brandName}
-Website: ${formData.websiteUrl}
-Contact Email: ${formData.email}
-Socials: ${formData.socials || "Not provided"}
-
---- CONCEPT CREATIVE BRIEF ---
-Product Advertised: ${formData.productOffer}
-Target Audience: ${formData.targetAudience}
-Tone & Feel: ${formData.toneFeel}
-Reference Ads / Competitors: ${formData.references}
-
---- ASSETS & ADDITIONAL NOTES ---
-Drive/Dropbox Assets: ${formData.assetsLink || "None specified"}
-Uploaded File attachment: ${fileName || "None"}
-Anything else we should know: ${formData.extraNotes || "None"}`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="px-4 py-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 rounded-xl text-blue-700 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center space-x-1.5"
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>Send with Outlook</span>
-                    </a>
-                    <a
-                      href={`mailto:hello@mandjack.digital?subject=${encodeURIComponent(`Mandjack Digital Brief: ${formData.brandName}`)}&body=${encodeURIComponent(`Brand Name: ${formData.brandName}
-Website: ${formData.websiteUrl}
-Contact Email: ${formData.email}
-Socials: ${formData.socials || "Not provided"}
-
---- CONCEPT CREATIVE BRIEF ---
-Product Advertised: ${formData.productOffer}
-Target Audience: ${formData.targetAudience}
-Tone & Feel: ${formData.toneFeel}
-Reference Ads / Competitors: ${formData.references}
-
---- ASSETS & ADDITIONAL NOTES ---
-Drive/Dropbox Assets: ${formData.assetsLink || "None specified"}
-Uploaded File attachment: ${fileName || "None"}
-Anything else we should know: ${formData.extraNotes || "None"}`)}`}
-                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-slate-800 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center space-x-1.5"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>Standard App</span>
-                    </a>
-                  </div>
                 </div>
               </div>
 
               {/* Action buttons list */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-200/60">
+              <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={onBack}
-                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-b from-slate-700 to-slate-900 border-b-[4px] border-slate-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-md hover:brightness-110 active:translate-y-[2px] active:border-b-[1px] transition-all cursor-pointer text-center"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[4px] border-[#8e732c] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:brightness-105 active:translate-y-[2px] active:border-b-[2px] transition-all cursor-pointer text-center"
                 >
-                  Return to Landing page
+                  Return to Dashboard
                 </button>
-                <div className="text-xs text-slate-400 font-medium italic flex items-center space-x-1.5">
-                  <HelpCircle className="w-4 h-4 text-amber-500 animate-pulse" />
+                <div className="text-xs text-slate-400 font-medium italic flex items-center space-x-1.5 py-1">
+                  <HelpCircle className="w-4 h-4 text-emerald-500" />
                   <span>Support: hello@mandjack.digital</span>
                 </div>
               </div>

@@ -18,6 +18,7 @@ import ThankYouPage from "./components/ThankYouPage";
 import ScrollReveal from "./components/ScrollReveal";
 import GlobalLoader from "./components/GlobalLoader";
 import ScrollProgressBar from "./components/ScrollProgressBar";
+import ConversionChatbot from "./components/ConversionChatbot";
 import { Sparkles, HelpCircle, Flame } from "lucide-react";
 
 // Clean transparent luxury spacer to blend section boundaries with staggered premium golden segments
@@ -404,6 +405,9 @@ export default function App() {
           <span>&copy; 2026 Mandjack.Digital. All rights reserved.</span>
         </div>
       </footer>
+
+      {/* Persistent global conversion-optimized chatbot */}
+      <ConversionChatbot accentColor={accentColor} onClaimSpotClick={handleClaimSpotClick} />
 
     </div>
   );
