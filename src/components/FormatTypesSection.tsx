@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { Play } from "lucide-react";
 import TextReveal from "./TextReveal";
 import { getVimeoVideoData } from "./vimeoCache";
 
@@ -19,7 +20,7 @@ interface FormatItem {
 
 function LazyFormatVimeo({ vimeoId, label, isHovered }: { vimeoId: string; label: string; isHovered: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isVertical, setIsVertical] = useState<boolean | null>(null);
@@ -34,81 +35,62 @@ function LazyFormatVimeo({ vimeoId, label, isHovered }: { vimeoId: string; label
       .catch((err) => {
         console.warn("Failed to load Vimeo metadata:", err);
       });
-
-    let debounceTimeout: any = null;
-
-    // 2. Setup intersection observer with automatic unload to release connection slots
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (debounceTimeout) clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(() => {
-              setIsIntersecting(true);
-            }, 100);
-          } else {
-            if (debounceTimeout) {
-              clearTimeout(debounceTimeout);
-              debounceTimeout = null;
-            }
-            // Smart unload
-            setIsIntersecting(false);
-            setIframeLoaded(false);
-          }
-        });
-      },
-      {
-        rootMargin: "300px",
-        threshold: 0.01,
-      }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    return () => {
-      if (debounceTimeout) clearTimeout(debounceTimeout);
-      observer.disconnect();
-    };
   }, [vimeoId]);
 
   // Use dnt=1 option to bypass Cloudflare security block inside sandbox browsers!
-  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=360p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
+  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&playsinline=1&quality=720p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
 
   const aspectClass = isVertical === true ? "aspect-[9/16] max-h-[460px] sm:max-h-[520px]" : "aspect-video";
 
   return (
-    <div ref={containerRef} className={`relative w-full ${aspectClass} mx-auto bg-slate-950 rounded-xl overflow-hidden shadow-inner font-sans transition-all duration-300`}>
-      {isIntersecting && (
+    <div 
+      ref={containerRef} 
+      className={`relative w-full ${aspectClass} mx-auto bg-slate-950 rounded-xl overflow-hidden shadow-inner font-sans transition-all duration-300 cursor-pointer group/vimeo`}
+      onClick={() => setIsPlaying(true)}
+    >
+      {isPlaying ? (
         <iframe
           src={embedUrl}
-          className="absolute inset-0 w-full h-full border-0 rounded-xl pointer-events-none transform scale-[1.01]"
+          className="absolute inset-0 w-full h-full border-0 rounded-xl transform scale-[1.01]"
           allow="autoplay; fullscreen"
           title={label}
           referrerPolicy="strict-origin-when-cross-origin" // send correct site domain so Vimeo does not block request
           onLoad={() => setIframeLoaded(true)}
         />
+      ) : (
+        <div className="absolute inset-0 rounded-xl overflow-hidden">
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={label}
+              className="w-full h-full object-cover rounded-xl scale-[1.01] transition-transform duration-500 group-hover/vimeo:scale-105"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="absolute inset-0 flex justify-center items-center bg-slate-900">
+              <div className="w-8 h-8 border-2 border-slate-700 border-t-slate-500 animate-spin rounded-full" />
+            </div>
+          )}
+
+          {/* Premium golden glassmorphism play overlay facade */}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/vimeo:bg-black/40 transition-colors duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900/85 backdrop-blur-md border border-[#ebd07a]/30 flex items-center justify-center text-[#ebd07a] shadow-[0_8px_24px_rgba(201,168,76,0.35)] transition-all duration-300 group-hover/vimeo:scale-110 group-hover/vimeo:bg-[#C9A84C] group-hover/vimeo:text-slate-950 group-hover/vimeo:shadow-[0_12px_32px_rgba(201,168,76,0.5)]">
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current translate-x-0.5" />
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Static poster image / Skeleton placeholder overlay */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-700 ease-in-out pointer-events-none ${
-          iframeLoaded ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        {thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={label}
-            className="w-full h-full object-cover rounded-xl scale-[1.01]"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="absolute inset-0 flex justify-center items-center bg-slate-900">
-            <div className="w-8 h-8 border-2 border-slate-700 border-t-slate-500 animate-spin rounded-full" />
-          </div>
-        )}
-      </div>
+      {/* Loading state indicator on iframe mount */}
+      {isPlaying && !iframeLoaded && (
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950/80 backdrop-blur-xs text-center rounded-xl z-10 pointer-events-none">
+          <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-2" />
+          <span className="text-[9px] text-white/50 font-mono uppercase tracking-widest">
+            Preparing High-Res Stream...
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -364,10 +346,10 @@ export default function FormatTypesSection({ onClaimClick, accentColor }: Format
             onClick={onClaimClick}
             className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
           >
-            CLAIM YOUR SPOT — $300 DEPOSIT
+            CLAIM YOUR SPOT — €300 DEPOSIT
           </button>
           <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-            💰 INTRODUCTORY $600 RATE AUTOMATICALLY LOCKED • ONLY 50% DUE TODAY
+            💰 INTRODUCTORY €600 RATE AUTOMATICALLY LOCKED • ONLY 50% DUE TODAY
           </p>
         </div>
 

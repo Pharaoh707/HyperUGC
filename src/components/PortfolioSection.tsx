@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { Play } from "lucide-react";
 import TextReveal from "./TextReveal";
 import { getVimeoVideoData } from "./vimeoCache";
 
@@ -18,7 +19,7 @@ interface VideoItem {
 // Optimized Lazy loading Vimeo player wrapper with background stream optimization and reconnection logic
 function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: string; isVertical: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
@@ -31,51 +32,18 @@ function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: str
       .catch((err) => {
         console.warn("Failed to load Vimeo thumbnail:", err);
       });
-
-    let debounceTimeout: any = null;
-
-    // 2. Setup intersection observer that toggles active loads as user scrolls
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (debounceTimeout) clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(() => {
-              setIsIntersecting(true);
-            }, 100); // stable wait before initialization
-          } else {
-            if (debounceTimeout) {
-              clearTimeout(debounceTimeout);
-              debounceTimeout = null;
-            }
-            // Smart unload when scrolling far out of view to avoid concurrent Cloudflare/Vimeo session blocks
-            setIsIntersecting(false);
-            setIframeLoaded(false);
-          }
-        });
-      },
-      {
-        rootMargin: "300px", // Preload just-in-time and unload when 300px away
-        threshold: 0.01,
-      }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      if (debounceTimeout) clearTimeout(debounceTimeout);
-      observer.disconnect();
-    };
   }, [vimeoId]);
 
-  // Use dnt=1 to prevent third party cookie tracking, bypassing iframe sandboxing connection errors!
-  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&background=1&loop=1&playsinline=1&quality=360p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
+  // Use dnt=1 option to bypass Cloudflare security block inside sandbox browsers!
+  const embedUrl = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&playsinline=1&quality=720p&byline=0&portrait=0&title=0&badge=0&autopause=0&dnt=1`;
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-slate-950">
-      {isIntersecting && (
+    <div 
+      ref={containerRef} 
+      className="relative w-full h-full bg-slate-950 cursor-pointer group/vimeo"
+      onClick={() => setIsPlaying(true)}
+    >
+      {isPlaying ? (
         <iframe
           src={embedUrl}
           className="absolute inset-0 w-full h-full border-0 scale-[1.01] object-cover object-center"
@@ -84,30 +52,43 @@ function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: str
           referrerPolicy="strict-origin-when-cross-origin" // crucial: send secure parent origin so Vimeo allows playback!
           onLoad={() => setIframeLoaded(true)}
         />
-      )}
-      
-      {/* Static poster image / Skeleton placeholder overlay */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-700 ease-in-out pointer-events-none ${
-          iframeLoaded ? "opacity-0" : "opacity-100"
-        }`}
-      >
-        {thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={label}
-            className="w-full h-full object-cover scale-[1.01]"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950 text-center p-4">
-            <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-3" />
-            <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
-              Fast Stream Loading...
-            </span>
+      ) : (
+        <div className="absolute inset-0">
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={label}
+              className="w-full h-full object-cover scale-[1.01] transition-transform duration-500 group-hover/vimeo:scale-105"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950 text-center p-4">
+              <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-3" />
+              <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
+                Preparing...
+              </span>
+            </div>
+          )}
+
+          {/* Centered golden premium glassmorphism play button facade */}
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/vimeo:bg-black/40 transition-colors duration-300">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900/85 backdrop-blur-md border border-[#ebd07a]/30 flex items-center justify-center text-[#ebd07a] shadow-[0_8px_24px_rgba(201,168,76,0.35)] transition-all duration-300 group-hover/vimeo:scale-110 group-hover/vimeo:bg-[#C9A84C] group-hover/vimeo:text-slate-950 group-hover/vimeo:shadow-[0_12px_32px_rgba(201,168,76,0.5)]">
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current translate-x-0.5" />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Loading state indicator on iframe mount */}
+      {isPlaying && !iframeLoaded && (
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950/80 backdrop-blur-xs text-center z-10 pointer-events-none">
+          <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-2" />
+          <span className="text-[9px] text-white/50 font-mono uppercase tracking-widest">
+            Preparing High-Res Stream...
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -214,6 +195,34 @@ function PortfolioCard({ item, idx }: PortfolioCardProps) {
   const [hasEntered, setHasEntered] = useState(false);
   const [isVertical, setIsVertical] = useState(true);
   const [aspectClass, setAspectClass] = useState("aspect-[9/16]");
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  // Setup Framer Motion scroll tracker for subtle premium parallax window depth
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+
+  // Calculate subtle dynamic vertical movement (-15px to 15px is balanced and highly premium)
+  const yParallax = useTransform(scrollYProgress, [0, 1], [15, -15]);
+
+  // Disable parallax if user prefers reduced motion or on slow connections
+  useEffect(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const nav = navigator as any;
+    const conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+    let isSlow = false;
+    if (conn) {
+      if (conn.saveData || conn.effectiveType === "slow-2g" || conn.effectiveType === "2g" || conn.effectiveType === "3g") {
+        isSlow = true;
+      }
+    }
+    if (prefersReduced || isSlow) {
+      setReduceMotion(true);
+    }
+  }, []);
+
+  const innerY = reduceMotion ? 0 : yParallax;
 
   // Fetch vertical/landscape orientation from Vimeo metadata at runtime
   useEffect(() => {
@@ -269,8 +278,14 @@ function PortfolioCard({ item, idx }: PortfolioCardProps) {
       className="break-inside-avoid inline-block w-full mb-6 relative p-2.5 rounded-[22px] bg-white/45 backdrop-blur-md border border-white/30 shadow-[0_12px_40px_rgba(0,0,0,0.06)] group transition-all duration-300"
     >
       <div className={`relative ${aspectClass} rounded-2xl overflow-hidden w-full bg-slate-950 transition-all duration-500`}>
-        {/* Embed lazy-loaded player in native video ratio */}
-        <LazyVimeo vimeoId={item.vimeoId} label={item.label} isVertical={isVertical} />
+        {/* Parallax inner wrapper scaling slightly to prevent visual edge clipping */}
+        <motion.div 
+          className="absolute inset-0 w-full h-full scale-[1.08] origin-center"
+          style={{ y: innerY }}
+        >
+          {/* Embed lazy-loaded player in native video ratio */}
+          <LazyVimeo vimeoId={item.vimeoId} label={item.label} isVertical={isVertical} />
+        </motion.div>
 
         {/* Frosted Glass Overlay Caption Bar */}
         <div className="absolute inset-x-3 bottom-3 p-3.5 bg-gradient-to-b from-black/25 via-black/45 to-black/60 backdrop-blur-md border border-white/10 rounded-xl flex flex-col justify-end transition-all duration-300 shadow-xl">

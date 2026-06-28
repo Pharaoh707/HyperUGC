@@ -1,6 +1,39 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ReactNode } from "react";
 import PremiumSparklesEffect from "./PremiumSparklesEffect";
+
+interface AnimatedKeywordProps {
+  children: ReactNode;
+  accentColor: "violet" | "gold";
+  className?: string;
+  delay?: number;
+}
+
+function AnimatedKeyword({ children, accentColor, className = "", delay = 0 }: AnimatedKeywordProps) {
+  const isViolet = accentColor === "violet";
+  
+  // Ultra-refined metallic text-clip gradient that flows smoothly on a shine cycle
+  const gradientClass = isViolet
+    ? "bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600"
+    : "bg-gradient-to-r from-[#a17e25] via-[#edd07f] to-[#a17e25]";
+
+  return (
+    <motion.span
+      className={`inline-block font-black bg-clip-text text-transparent bg-[length:200%_auto] animate-[shine_3.5s_ease-in-out_infinite] select-none ${gradientClass} ${className}`}
+      animate={{
+        scale: [1, 1.03, 1],
+      }}
+      transition={{
+        duration: 2.8,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: delay
+      }}
+    >
+      {children}
+    </motion.span>
+  );
+}
 
 interface HeroSectionProps {
   onClaimClick: () => void;
@@ -261,22 +294,31 @@ export default function HeroSection({ onClaimClick, accentColor, onVideoLoaded }
           </div>
 
           {/* Heading with luxurious dark espresso brown instead of pure black */}
-          <div className="space-y-2 md:space-y-3">
+          <div className="space-y-4 md:space-y-5">
             <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-sans font-bold tracking-tight text-[#1b120c] leading-[1.08]">
-              <div className="overflow-hidden block">
-                <span className="block">HYPER REALISTIC</span>
+              <div className="block">
+                <span className="block">UGC ads for SaaS</span>
               </div>
-              <div className="overflow-hidden block">
-                <span className={`block ${glowText}`}>UGC ADS THAT CONVERT</span>
+              <div className="block">
+                <span className={`block ${glowText}`}>delivered in 72 hours</span>
               </div>
             </h1>
+            <p className="text-xl md:text-2xl font-bold tracking-tight text-[#4e3c31] leading-relaxed">
+              For Brands that need more leads, clicks, and sales.
+            </p>
           </div>
 
           {/* Subheading in soft cocoa brown tones */}
-          <p className="text-lg md:text-xl text-[#4e3c31] font-medium tracking-tight max-w-xl">
-            Delivered in <span className="font-bold text-[#1b120c]">72 Hours</span>. 
-            Production-ready video structures engineered to stop the scroll and <span className="text-amber-600 font-extrabold">skyrocket conversions</span>.
-          </p>
+          <div className="text-base md:text-lg text-[#4e3c31] font-medium tracking-tight max-w-xl space-y-3.5">
+            <p className="leading-relaxed">
+              Get <AnimatedKeyword accentColor={accentColor} delay={0}>5 UGC ads</AnimatedKeyword> built around your <AnimatedKeyword accentColor={accentColor} delay={0.3}>Product</AnimatedKeyword> or <AnimatedKeyword accentColor={accentColor} delay={0.6}>Service</AnimatedKeyword> use case, pain point, and buyer psychology.
+            </p>
+            <p className="leading-relaxed opacity-90">
+              Ready for TikTok, Instagram Reels, Youtube Shorts, and Meta. <span className="font-bold text-[#1b120c] inline-block whitespace-nowrap">
+                <AnimatedKeyword accentColor={accentColor} delay={0.9}>Order</AnimatedKeyword> today for <AnimatedKeyword accentColor={accentColor} delay={1.2}>50% Discount</AnimatedKeyword>.
+              </span>
+            </p>
+          </div>
 
           {/* CTA Trigger Group */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 pt-2">

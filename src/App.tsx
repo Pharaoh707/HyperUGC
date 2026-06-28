@@ -244,34 +244,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Floating Theme Controller Accent Toggler - Balanced on the Left of the Viewport */}
-      <div className="fixed bottom-6 left-6 z-[99991] flex items-center space-x-2 bg-[#1a110a]/95 hover:bg-[#23170e] text-white p-2 rounded-full shadow-2xl border border-white/10 backdrop-blur-md">
-        <span className="text-[10px] font-mono uppercase tracking-widest pl-3 pr-1 text-amber-200/50 font-bold hidden sm:inline-block">
-          Active Gold:
-        </span>
-        
-        {/* Champagne Bronze option */}
-        <button
-          onClick={() => setAccentColor("violet")}
-          className={`w-7 h-7 rounded-full bg-amber-600 transition-all cursor-pointer relative ${
-            accentColor === "violet" 
-              ? "ring-2 ring-white scale-110 shadow-[0_0_10px_#d9a326]" 
-              : "opacity-45 hover:opacity-100"
-          }`}
-          title="Switch to Champagne Bronze Gold accent theme"
-        />
 
-        {/* Rich Gold option */}
-        <button
-          onClick={() => setAccentColor("gold")}
-          className={`w-7 h-7 rounded-full bg-[#C9A84C] transition-all cursor-pointer relative ${
-            accentColor === "gold" 
-              ? "ring-2 ring-white scale-110 shadow-[0_0_10px_#C9A84C]" 
-              : "opacity-45 hover:opacity-100"
-          }`}
-          title="Switch to 24K Royal Gold accent theme"
-        />
-      </div>
 
       {/* Top sticky Rate line */}
       <TopBar onClaimClick={handleClaimSpotClick} accentColor={accentColor} />

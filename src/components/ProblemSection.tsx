@@ -4,6 +4,48 @@ interface ProblemSectionProps {
   accentColor: "violet" | "gold";
 }
 
+// Global premium stagger animation definitions
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.05
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] }
+  }
+};
+
+const quoteContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const quoteItemVariants = {
+  hidden: { opacity: 0, x: -15, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] }
+  }
+};
+
 export default function ProblemSection({ accentColor }: ProblemSectionProps) {
   const accentText = accentColor === "violet" ? "text-purple-600" : "text-[#C9A84C]";
   const accentBgLight = accentColor === "violet" ? "bg-purple-50" : "bg-amber-50";
@@ -16,67 +58,61 @@ export default function ProblemSection({ accentColor }: ProblemSectionProps) {
 
       <div className="max-w-4xl mx-auto space-y-16 md:space-y-24">
         
-        {/* Header Block with Split-Text type trigger */}
-        <div className="text-center space-y-3">
+        {/* Header Block with Staggered Entrance */}
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          className="text-center space-y-3"
+        >
           <div className="overflow-hidden">
             <motion.h2 
-              initial={{ y: "100%" }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              variants={itemVariants}
               className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 tracking-tight leading-tight"
             >
               You've already been let down by a creator.
             </motion.h2>
           </div>
           <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            variants={itemVariants}
             className={`text-lg sm:text-xl font-mono uppercase tracking-widest ${accentText}`}
           >
             You're not making that mistake again.
           </motion.p>
-        </div>
+        </motion.div>
 
-        {/* Narrative Paragraph Blocks */}
-        <div className="space-y-8 md:space-y-12 text-slate-700 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto font-sans font-medium">
-          
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-          >
+        {/* Narrative Paragraph Blocks with Staggered Entrance */}
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          className="space-y-8 md:space-y-12 text-slate-700 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto font-sans font-medium"
+        >
+          <motion.p variants={itemVariants}>
             Most UGC creators <span className="text-amber-600 font-bold">ignore your brief</span>, deliver <span className="text-amber-600 font-extrabold">generic click-bait content</span>, and <span className="text-amber-600 font-bold">ghost you</span> when you ask for revisions. 
             They skim a couple of bullet points, record on a <span className="text-amber-600 font-extrabold">legacy phone in a messy room</span>, and expect you to just "trust their process."
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-          >
+          <motion.p variants={itemVariants}>
             Some agreed to edit "a few things" — and sent back something <span className="text-amber-600 font-semibold italic">barely different</span>. 
             Then, they have the audacity to demand you <span className="text-amber-600 font-black">pay extra</span> for fixing their own basic mistakes, charging hidden <span className="text-amber-600 font-bold">licensing premiums</span> just to utilize static clips.
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-          >
+          <motion.p variants={itemVariants}>
             You did everything right. You wrote a detailed brief. You paid upfront. You <span className="text-slate-900 font-extrabold">painfully waited two weeks</span> — only to receive a video clearly <span className="text-amber-600 font-bold">filmed in five minutes</span> with <span className="text-amber-600 font-black">zero conceptual thought</span> about your brand, your offer, or your target customer.
           </motion.p>
-
-        </div>
+        </motion.div>
 
         {/* Isolated stand out Callout Lines */}
-        <div className="space-y-8 md:space-y-12 text-center max-w-2.5xl mx-auto pt-8">
-          
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={quoteContainerVariants}
+          className="space-y-8 md:space-y-12 text-center max-w-2.5xl mx-auto pt-8"
+        >
           {[
             "Polished portfolios that have nothing to do with what shows up in your inbox.",
             "Paying for content you can't run — because it won't convert, and you know it.",
@@ -88,10 +124,7 @@ export default function ProblemSection({ accentColor }: ProblemSectionProps) {
           ].map((line, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, scale: 0.97 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: idx * 0.1, duration: 0.6 }}
+              variants={quoteItemVariants}
               className="px-4 py-2 border-l-2 border-slate-200 text-slate-500 italic text-base sm:text-lg md:text-xl font-sans"
             >
               "{line}"
@@ -99,12 +132,15 @@ export default function ProblemSection({ accentColor }: ProblemSectionProps) {
           ))}
 
           {/* Core Oversized conclusion triggers */}
-          <div className="space-y-4 pt-10">
+          <motion.div 
+            variants={containerVariants}
+            className="space-y-4 pt-10"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, type: "spring" }}
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                visible: { opacity: 1, scale: 1, transition: { duration: 0.5, type: "spring" } }
+              }}
               className="flex justify-center"
             >
               <span className={`text-6xl sm:text-7xl md:text-8xl font-black font-display tracking-tight leading-none block px-12 sm:px-16 py-6 sm:py-8 rounded-[32px] shadow-sm ${accentText} ${accentBgLight}`}>
@@ -113,17 +149,13 @@ export default function ProblemSection({ accentColor }: ProblemSectionProps) {
             </motion.div>
 
             <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.7 }}
+              variants={itemVariants}
               className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-slate-800 tracking-tight leading-normal"
             >
               You're just working with the wrong people.
             </motion.p>
-          </div>
-
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Transition Close */}
         <motion.div 

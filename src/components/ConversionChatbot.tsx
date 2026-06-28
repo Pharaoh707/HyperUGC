@@ -216,7 +216,7 @@ export default function ConversionChatbot({ accentColor, onClaimSpotClick }: Con
   return (
     <>
       {/* Floating Collapsed Toggle Icon Widget */}
-      <div className="fixed bottom-24 left-6 z-[99993] select-none">
+      <div className="fixed bottom-6 left-6 z-[99993] select-none">
         <button
           id="btn-chatbot-toggle"
           onClick={() => setIsOpen(!isOpen)}
@@ -257,7 +257,7 @@ export default function ConversionChatbot({ accentColor, onClaimSpotClick }: Con
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
             transition={{ type: "spring", stiffness: 280, damping: 25 }}
-            className="fixed bottom-40 left-4 sm:left-6 z-[99993] w-[calc(100vw-32px)] sm:w-[380px] h-[500px] bg-slate-950/98 border border-slate-800/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col backdrop-blur-xl"
+            className="fixed bottom-22 left-4 sm:left-6 z-[99993] w-[calc(100vw-32px)] sm:w-[380px] h-[500px] bg-slate-950/98 border border-slate-800/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col backdrop-blur-xl"
           >
             {/* Header portion */}
             <div className="bg-slate-900/90 border-b border-slate-800/60 p-4 flex items-center justify-between">

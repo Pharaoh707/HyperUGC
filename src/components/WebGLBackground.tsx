@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface WebGLBackgroundProps {
   accentColor: "violet" | "gold";
@@ -7,8 +7,31 @@ interface WebGLBackgroundProps {
 export default function WebGLBackground({ accentColor }: WebGLBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const [isStatic, setIsStatic] = useState(false);
 
   useEffect(() => {
+    // 1. Detect prefers-reduced-motion preference
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // 2. Detect slow network connection (2g, 3g, or saveData enabled)
+    const nav = navigator as any;
+    const conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+    let isSlow = false;
+    if (conn) {
+      if (conn.saveData) {
+        isSlow = true;
+      }
+      const effType = conn.effectiveType;
+      if (effType === "slow-2g" || effType === "2g" || effType === "3g") {
+        isSlow = true;
+      }
+    }
+
+    if (prefersReduced || isSlow) {
+      setIsStatic(true);
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -174,6 +197,17 @@ export default function WebGLBackground({ accentColor }: WebGLBackgroundProps) {
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [accentColor]);
+
+  if (isStatic) {
+    return (
+      <div
+        className="fixed inset-0 w-full h-full bg-[#faf7f2] pointer-events-none"
+        style={{ zIndex: 0 }}
+      >
+        <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_50%_35%,rgba(218,165,32,0.15)_0%,transparent_60%),radial-gradient(circle_at_50%_65%,rgba(255,215,0,0.10)_0%,transparent_60%)] animate-fade-in" />
+      </div>
+    );
+  }
 
   return (
     <canvas

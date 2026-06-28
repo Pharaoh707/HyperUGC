@@ -116,7 +116,7 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
                 variants={itemVariants}
                 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-slate-900 leading-[1.14]"
               >
-                You deserve hyper-realistic video ads that look like a <span className="text-amber-600 font-extrabold">$10,000 production shoot</span>
+                You deserve hyper-realistic video ads that look like a <span className="text-amber-600 font-extrabold">€10,000 production shoot</span>
               </motion.h2>
 
               <motion.p 
@@ -173,11 +173,11 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
                   className="shimmer-btn relative overflow-hidden px-6 py-3.5 rounded-xl text-[11px] font-black tracking-widest transition-all cursor-pointer text-center select-none text-white uppercase bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[5px] border-[#8e732c] shadow-[0_8px_20px_rgba(201,168,76,0.3)] hover:brightness-105 active:translate-y-[3px] active:border-b-[1px] active:shadow-[0_2px_8px_rgba(201,168,76,0.2)]"
                 >
                   <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-                  CLAIM YOUR SPOT — $300 DEPOSIT
+                  CLAIM YOUR SPOT — €300 DEPOSIT
                 </button>
                 
                 <div className="flex items-center space-x-2 text-slate-500 text-[10px] font-mono justify-center sm:justify-start">
-                  <span>💰 $300 to start ($600 total)</span>
+                  <span>💰 €300 to start (€600 total)</span>
                   <span>•</span>
                   <span>⏱️ Setup: 10 min</span>
                   <span>•</span>
@@ -220,10 +220,10 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
               <div className="glass-panel py-3 px-2 text-center flex flex-col justify-center items-center space-y-0.5 bg-white/95 rounded-2xl border border-white/50 shadow-sm">
                 <span className="text-base sm:text-lg">💰</span>
                 <span className="text-sm sm:text-base font-mono font-bold text-slate-900">
-                  ${hasEntered ? counts.price : 600}
+                  €{hasEntered ? counts.price : 600}
                 </span>
                 <span className="text-[8px] sm:text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none line-through">
-                  $1,200 VALUE
+                  €1,200 VALUE
                 </span>
               </div>
 

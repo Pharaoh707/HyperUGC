@@ -30,7 +30,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
       const elapsed = time - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Easing out cubic to decelerate heavily towards $300
+      // Easing out cubic to decelerate heavily towards €300
       const easedProgress = 1 - Math.pow(1 - progress, 3);
       const currentValue = Math.round(start - easedProgress * (start - end));
 
@@ -103,7 +103,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
             Spots are limited to maintain quality and fast delivery. Once they're gone, they're gone.
           </h2>
           <p className="text-slate-600 font-medium text-base sm:text-lg">
-            Lock in the <span className="font-extrabold text-slate-900">$600 launch rate</span> today. Pay only <span className="font-extrabold text-slate-900">$300 deposit</span> to book your slot now.
+            Lock in the <span className="font-extrabold text-slate-900">€600 launch rate</span> today. Pay only <span className="font-extrabold text-slate-900">€300 deposit</span> to book your slot now.
           </p>
         </div>
 
@@ -156,7 +156,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                 
                 {/* 1. Value strike-through */}
                 <div className="relative inline-block text-slate-400 text-xl font-bold font-mono">
-                  <span>$1,200 VALUE</span>
+                  <span>€1,200 VALUE</span>
                   {showPrice && (
                     <motion.div
                       initial={{ width: 0 }}
@@ -175,7 +175,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                     transition={{ delay: 0.9, duration: 0.5 }}
                     className="text-lg text-slate-600 font-bold font-mono tracking-tight leading-none"
                   >
-                    Standard Launch Price: $600
+                    Standard Launch Price: €600
                   </motion.div>
                 )}
 
@@ -190,7 +190,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                     <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block font-bold">DEPOSIT TO SECURE TIME</span>
                     <div className="flex flex-col justify-center items-center">
                     <span className={`text-5xl sm:text-6xl font-black font-display tracking-tight leading-none block ${accentText} ${glowShadow} px-4 py-2 bg-white rounded-2xl border-2 ${accentBorder} animate-pulse-slow min-w-[140px]`}>
-                      ${counter.toLocaleString()}
+                      €{counter.toLocaleString()}
                     </span>
                     <span className="text-xs text-slate-400 font-semibold font-mono mt-2">DUE TODAY (-50% OF PACKAGE VALUE)</span>
                   </div>
@@ -207,7 +207,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                 className={`shimmer-btn relative overflow-hidden w-full h-[58px] rounded-xl text-xs sm:text-sm font-black text-white hover:brightness-105 cursor-pointer flex items-center justify-center space-x-2 px-4 select-none ${btnGrad}`}
               >
                 <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-                <span>CLAIM YOUR SPOT NOW — $300 DEPOSIT TO START</span>
+                <span>CLAIM YOUR SPOT NOW — €300 DEPOSIT TO START</span>
               </button>
             </div>
 

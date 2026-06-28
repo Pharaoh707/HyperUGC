@@ -169,10 +169,10 @@ export default function HowItWorksSection({ onClaimClick, accentColor }: HowItWo
             onClick={onClaimClick}
             className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
           >
-            CLAIM YOUR SPOT — $300 DEPOSIT
+            CLAIM YOUR SPOT — €300 DEPOSIT
           </button>
           <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-            💰 SECURE THE $600 INTRO PRICE FOREVER • 100% REFUNDABLE BEFORE CREATIVE BRIEF SUBMISSION
+            💰 SECURE THE €600 INTRO PRICE FOREVER • 100% REFUNDABLE BEFORE CREATIVE BRIEF SUBMISSION
           </p>
         </motion.div>
 

@@ -114,10 +114,10 @@ export default function CTARepeatSection({ onClaimClick, accentColor }: CTARepea
               className={`shimmer-btn relative overflow-hidden px-9 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
             >
               <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-              CLAIM YOUR SPOT — $300 DEPOSIT
+              CLAIM YOUR SPOT — €300 DEPOSIT
             </button>
             <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-              💰 $600 INTRO PRICE (REG. $1,200) • ONLY 50% DUE TODAY • 100% SATISFACTION GUARANTEED
+              💰 €600 INTRO PRICE (REG. €1,200) • ONLY 50% DUE TODAY • 100% SATISFACTION GUARANTEED
             </p>
           </div>
 

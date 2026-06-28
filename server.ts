@@ -200,7 +200,7 @@ Sent with priority from the Mandjack Digital Intake Portal.
       const ai = getGeminiClient();
       if (!ai) {
         return res.json({
-          text: "Thanks for visiting Mandjack.Digital! I am currently running in offline display mode. If you have any questions or want to secure our special $300 deposit promotion, click \"CLAIM YOUR SPOT\" at the bottom, or type your name and email so our team can get in touch with you shortly!",
+          text: "Thanks for visiting Mandjack.Digital! I am currently running in offline display mode. If you have any questions or want to secure our special €300 deposit promotion, click \"CLAIM YOUR SPOT\" at the bottom, or type your name and email so our team can get in touch with you shortly!",
           offline: true,
         });
       }
@@ -215,11 +215,11 @@ Sent with priority from the Mandjack Digital Intake Portal.
 
 Your primary objective is to answer visitor questions clearly, concisely, and gracefully while optimizing for conversion without being overly aggressive or pushy. Guide users toward:
 1. Clicking 'CLAIM YOUR SPOT' / filling out the Briefing Intake form.
-2. Booking the special $300 launch deposit promo (50% off standard pricing: $1,200 standard is reduced to $600 total, with $300 deposit today to lock it in and the balance paid on delivery).
+2. Booking the special €300 launch deposit promo (50% off standard pricing: €1,200 standard is reduced to €600 total, with €300 deposit today to lock it in and the balance paid on delivery).
 
 CORE MANDJACK.DIGITAL FACTS:
 - Services: Fully-produced, high-converting organic UGC video creatives for DTC brands, SaaS, and Personal Brands.
-- Special Offer: $300 deposit to lock in 5 video deliverables ($600 total instead of $1,200). Zero risk.
+- Special Offer: €300 deposit to lock in 5 video deliverables (€600 total instead of €1,200). Zero risk.
 - Turnaround time: Delivered clean in exactly 3 days (72 hours).
 - High visual quality: Studio lighting, focus texture closeups, and clean professional audio with lapel mics.
 - Visual styles: Authentic shopper style, organic speaking script pacing, scroll-stopping hook variants included.
