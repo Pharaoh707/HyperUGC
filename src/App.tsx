@@ -108,10 +108,17 @@ export default function App() {
   // Track scroll position for the floating action button shortcut appearance
   const [showFAB, setShowFAB] = useState(false);
 
+  // FAB Hover state for breathing animation control and tooltip
+  const [isFABHovered, setIsFABHovered] = useState(false);
+
+  // FAB Circular ink-ripple tracking state
+  const [fabRipples, setFabRipples] = useState<Array<{ id: number; x: number; y: number; size: number }>>([]);
+
   // Floating Action Button Magnetic Content Offset
   const [magneticOffset, setMagneticOffset] = useState({ x: 0, y: 0 });
 
   const handleFABMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setIsFABHovered(true);
     const button = e.currentTarget;
     const rect = button.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -129,7 +136,31 @@ export default function App() {
   };
 
   const handleFABMouseLeave = () => {
+    setIsFABHovered(false);
     setMagneticOffset({ x: 0, y: 0 });
+  };
+
+  // Click handler to launch tactile circular ink ripples
+  const handleFABClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const size = Math.max(rect.width, rect.height) * 2.5;
+
+    const newRipple = {
+      id: Date.now(),
+      x,
+      y,
+      size,
+    };
+
+    setFabRipples((prev) => [...prev, newRipple]);
+
+    // Let the ripple animate for 200ms before triggering navigation
+    setTimeout(() => {
+      handleClaimSpotClick();
+    }, 200);
   };
 
   // Global dynamic element injector for preloading social proof avatars
@@ -218,29 +249,86 @@ export default function App() {
       {/* Unique Floating Action Button (FAB) Shortcut to Open Brief Intake Form */}
       <AnimatePresence>
         {showFAB && currentPage === "home" && (
-          <motion.button
-            id="fab-intake-shortcut"
-            initial={{ opacity: 0, scale: 0.8, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 30 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            onClick={handleClaimSpotClick}
-            onMouseMove={handleFABMouseMove}
-            onMouseLeave={handleFABMouseLeave}
-            className="fixed bottom-6 right-6 z-[99992] flex items-center justify-center px-5 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-[0_8px_30px_rgba(201,168,76,0.35)] border-b-[4px] border-[#8e732c] cursor-pointer backdrop-blur-md hover:brightness-105 active:translate-y-[2px] active:border-b-[1px] transition-all duration-100 bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33]"
-          >
-            <motion.div
-              animate={{ x: magneticOffset.x, y: magneticOffset.y }}
-              transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.1 }}
-              className="flex items-center space-x-3 pointer-events-none"
+          <div className="fixed bottom-6 right-6 z-[99992] flex flex-col items-end">
+            {/* Tooltip on Hover with Delayed Reveal */}
+            <AnimatePresence>
+              {isFABHovered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                  transition={{ delay: 0.35, duration: 0.18, ease: "easeOut" }}
+                  className="mb-3.5 px-3 py-1.5 bg-slate-950 text-slate-100 border border-slate-800 rounded-lg text-[10px] font-mono font-bold tracking-widest whitespace-nowrap shadow-2xl pointer-events-none select-none relative"
+                >
+                  VIEW BRIEF
+                  {/* Tooltip Arrow */}
+                  <div className="absolute top-full right-8 -mt-1 w-2 h-2 bg-slate-950 border-r border-b border-slate-800 rotate-45" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.button
+              id="fab-intake-shortcut"
+              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              animate={
+                isFABHovered 
+                  ? { opacity: 1, scale: 1.05, y: 0 } 
+                  : { opacity: 1, scale: [1, 1.04, 1], y: 0 }
+              }
+              exit={{ opacity: 0, scale: 0.8, y: 30 }}
+              transition={
+                isFABHovered
+                  ? { type: "spring", stiffness: 260, damping: 20 }
+                  : {
+                      scale: {
+                        repeat: Infinity,
+                        duration: 3,
+                        ease: "easeInOut"
+                      },
+                      opacity: { duration: 0.2 },
+                      y: { type: "spring", stiffness: 260, damping: 20 }
+                    }
+              }
+              onClick={handleFABClick}
+              onMouseMove={handleFABMouseMove}
+              onMouseLeave={handleFABMouseLeave}
+              className="relative overflow-hidden flex items-center justify-center px-5 py-3.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-[0_8px_30px_rgba(201,168,76,0.35)] border-b-[4px] border-[#8e732c] cursor-pointer backdrop-blur-md hover:brightness-105 active:translate-y-[2px] active:border-b-[1px] transition-all duration-100 bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33]"
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              {/* Circular tactile ink-ripple elements */}
+              <span className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+                {fabRipples.map((ripple) => (
+                  <motion.span
+                    key={ripple.id}
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 1, opacity: 0 }}
+                    transition={{ duration: 0.55, ease: "easeOut" }}
+                    onAnimationComplete={() => {
+                      setFabRipples((prev) => prev.filter((r) => r.id !== ripple.id));
+                    }}
+                    className="absolute bg-white/40 rounded-full"
+                    style={{
+                      width: ripple.size,
+                      height: ripple.size,
+                      left: ripple.x - ripple.size / 2,
+                      top: ripple.y - ripple.size / 2,
+                    }}
+                  />
+                ))}
               </span>
-              <span className="font-mono tracking-[0.14em]">CLAIM YOUR SPOT NOW</span>
-            </motion.div>
-          </motion.button>
+
+              <motion.div
+                animate={{ x: magneticOffset.x, y: magneticOffset.y }}
+                transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.1 }}
+                className="flex items-center space-x-3 pointer-events-none animate-none"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="font-mono tracking-[0.14em]">CLAIM YOUR SPOT NOW</span>
+              </motion.div>
+            </motion.button>
+          </div>
         )}
       </AnimatePresence>
 

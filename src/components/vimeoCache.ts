@@ -10,7 +10,7 @@ const videoDataCache: Record<string, VimeoVideoData> = {};
 const pendingPromises: Record<string, Promise<VimeoVideoData>> = {};
 
 // Hardcoded static metadata catalog for all our Vimeo videos to guarantee instant load times & offline/sandbox stability
-const KNOWN_VIDEOS_METADATA: Record<string, { isVertical: boolean; width: number; height: number; thumbnailUrl: string }> = {
+export const KNOWN_VIDEOS_METADATA: Record<string, { isVertical: boolean; width: number; height: number; thumbnailUrl: string }> = {
   // Portfolio section (Vertical except Beauty Commercial)
   "1188912682": {
     isVertical: true,

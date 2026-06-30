@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, ChevronDown, SlidersHorizontal, ArrowRight } from "lucide-react";
-import TestimonialCard from "./TestimonialCard";
+import TestimonialCard, { TestimonialCardSkeleton } from "./TestimonialCard";
+import { useCurrency } from "../lib/CurrencyContext";
+
 
 interface SocialProofSectionProps {
   setNumber: 1 | 2;
@@ -20,8 +22,17 @@ interface Testimonial {
 }
 
 export default function SocialProofSection({ setNumber, onClaimClick, accentColor }: SocialProofSectionProps) {
+  const { currentCurrency } = useCurrency();
   const [selectedIndustry, setSelectedIndustry] = useState<"All" | "E-commerce" | "SaaS" | "Personal Brand">("All");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isPreloading, setIsPreloading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPreloading(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Diverse, adult, high-profile target portraits with realistic metric-focused testimonials centering ease of use.
   const set1: Testimonial[] = [
@@ -30,7 +41,7 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Brand Owner",
       brand: "Safi Bedding",
-      metric: "CPA dropped from €22 to €11.40",
+      metric: currentCurrency.cpaDrop,
       headline: "Aesthetic briefs nailed in the first cut",
       quote: "Our aesthetic brand guidelines were constantly ignored by creator directories. This team captured the linen texture and high-sun lighting perfectly. Received 5 polished files in exactly 3 days.",
       industry: "E-commerce"
@@ -90,7 +101,7 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120&h=120",
       position: "Solopreneur",
       brand: "Lumi Dental Wax",
-      metric: "Saved €3,500 in creative booking fees",
+      metric: currentCurrency.savedBooking,
       headline: "Saved my campaign launch constraints",
       quote: "I didn't have to hire modeling agencies or coordinate high-rent studio rentals myself. Sent the guidelines, paid the low deposit, and received exact files ready to turn on.",
       industry: "Personal Brand"
@@ -100,7 +111,7 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       avatarUrl: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=120&h=120",
       position: "DTC Co-founder",
       brand: "AeroVeda Cosmeceuticals",
-      metric: "Average CPA reduced by €14.20",
+      metric: currentCurrency.cpaReduced,
       headline: "Pre-cropped format cuts saved us hours",
       quote: "Usually 'deliverables' still requires cropping for YouTube Shorts or stories. They sent all files pre-sliced in 9:16 and 1:1, perfectly centered and balanced.",
       industry: "E-commerce"
@@ -173,7 +184,7 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
       avatarUrl: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=120&h=120",
       position: "E-Commerce Founder",
       brand: "Aura Home Scents",
-      metric: "First campaign scaled past €10k spend",
+      metric: currentCurrency.scaledPast,
       headline: "Simplest point of contact experience",
       quote: "One organized portal handled our entire project lifecycle. We didn't have to micromanage timelines, the high-res files arrived exactly on the 70th hour.",
       industry: "E-commerce"
@@ -274,8 +285,12 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
                     <button
                       key={industry}
                       onClick={() => {
+                        setIsPreloading(true);
                         setSelectedIndustry(industry);
                         setDropdownOpen(false);
+                        setTimeout(() => {
+                          setIsPreloading(false);
+                        }, 250);
                       }}
                       className={`flex items-center justify-between w-full px-3 py-2 text-left text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
                         selectedIndustry === industry
@@ -298,26 +313,33 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
         {/* Active counter message showcasing precision */}
         <div className="text-center relative z-10 -mt-4">
           <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-widest bg-white px-3 py-1 border border-slate-100 rounded-full">
-            Showing {filteredList.length} of {list.length} Stories
+            {isPreloading ? "Updating stories..." : `Showing ${filteredList.length} of ${list.length} Stories`}
           </span>
         </div>
 
-        {/* 3x3 Grid of Testimonials */}
+        {/* 3x3 Grid of Testimonials / Skeletons */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 pt-2 relative z-10 transition-all duration-300">
-          {filteredList.map((item, idx) => (
-            <TestimonialCard
-              key={item.name + idx}
-              item={item}
-              idx={idx}
-              accentBorder={accentBorder}
-              accentFill={accentFill}
-              accentText={accentText}
-              ringAccent={ringAccent}
-            />
-          ))}
+          {isPreloading ? (
+            // Render 3 skeleton cards to keep the grid layout perfectly balanced and stable
+            [1, 2, 3].map((id) => (
+              <TestimonialCardSkeleton key={id} accentBorder={accentBorder} />
+            ))
+          ) : (
+            filteredList.map((item, idx) => (
+              <TestimonialCard
+                key={item.name + idx}
+                item={item}
+                idx={idx}
+                accentBorder={accentBorder}
+                accentFill={accentFill}
+                accentText={accentText}
+                ringAccent={ringAccent}
+              />
+            ))
+          )}
         </div>
 
-        {filteredList.length === 0 && (
+        {!isPreloading && filteredList.length === 0 && (
           <div className="text-center py-12 bg-slate-50 border border-dashed border-slate-200 rounded-3xl z-10 relative">
             <span className="text-sm font-mono text-slate-400 uppercase font-bold">No partner stories found matching this filter</span>
           </div>
@@ -342,10 +364,10 @@ export default function SocialProofSection({ setNumber, onClaimClick, accentColo
               onClick={onClaimClick}
               className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
             >
-              CLAIM YOUR SPOT — €300 DEPOSIT
+              CLAIM YOUR SPOT — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT
             </button>
             <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-              💰 LOCK IN THE €600 LAUNCH PRICE (50% OFF) • REVISIONS FULLY INCLUDED
+              💰 LOCK IN THE {currentCurrency.symbol}{currentCurrency.price} LAUNCH PRICE (50% OFF) • REVISIONS FULLY INCLUDED
             </p>
           </div>
         </div>

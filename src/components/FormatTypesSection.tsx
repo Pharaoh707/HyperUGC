@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import { Play } from "lucide-react";
 import TextReveal from "./TextReveal";
 import { getVimeoVideoData } from "./vimeoCache";
+import { useCurrency } from "../lib/CurrencyContext";
+
 
 interface FormatTypesSectionProps {
   onClaimClick: () => void;
@@ -236,6 +238,7 @@ function BentoCard({
 }
 
 export default function FormatTypesSection({ onClaimClick, accentColor }: FormatTypesSectionProps) {
+  const { currentCurrency } = useCurrency();
   const formats: FormatItem[] = [
     {
       id: "f1",
@@ -346,10 +349,10 @@ export default function FormatTypesSection({ onClaimClick, accentColor }: Format
             onClick={onClaimClick}
             className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
           >
-            CLAIM YOUR SPOT — €300 DEPOSIT
+            CLAIM YOUR SPOT — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT
           </button>
           <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-            💰 INTRODUCTORY €600 RATE AUTOMATICALLY LOCKED • ONLY 50% DUE TODAY
+            {currentCurrency.note}
           </p>
         </div>
 

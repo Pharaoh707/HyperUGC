@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { SPOTS_REMAINING } from "../counter";
 import PremiumSparklesEffect from "./PremiumSparklesEffect";
+import { useCurrency } from "../lib/CurrencyContext";
 
 interface OfferRevealSectionProps {
   onClaimClick: () => void;
@@ -11,6 +12,7 @@ interface OfferRevealSectionProps {
 export default function OfferRevealSection({ onClaimClick, accentColor }: OfferRevealSectionProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const { currentCurrency } = useCurrency();
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -34,8 +36,15 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
   const glowScale = useTransform(scrollYProgress, [0.1, 0.85], [0.9, 1.2]);
 
   // Handle mock dynamic counting for our premium stats highlights
-  const [counts, setCounts] = useState({ delivery: 0, videos: 0, price: 1200, pay: 0 });
+  const [counts, setCounts] = useState({ delivery: 0, videos: 0, price: currentCurrency.valueNum, pay: 0 });
   const [hasEntered, setHasEntered] = useState(false);
+
+  useEffect(() => {
+    // Reset counts when currency changes so it animates beautifully with new numbers
+    const startVal = currentCurrency.valueNum;
+    const endVal = currentCurrency.priceNum;
+    setCounts({ delivery: 72, videos: 5, price: endVal, pay: 50 });
+  }, [currentCurrency]);
 
   useEffect(() => {
     if (!hasEntered) return;
@@ -46,12 +55,16 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
     const interval = duration / steps;
     let stepCount = 0;
 
+    const startVal = currentCurrency.valueNum;
+    const endVal = currentCurrency.priceNum;
+    const diffVal = startVal - endVal;
+
     const timer = setInterval(() => {
       stepCount++;
       setCounts({
         delivery: Math.min(Math.round((72 / steps) * stepCount), 72),
         videos: Math.min(Math.round((5 / steps) * stepCount), 5),
-        price: Math.max(1200 - Math.round((600 / steps) * stepCount), 600),
+        price: Math.max(startVal - Math.round((diffVal / steps) * stepCount), endVal),
         pay: Math.min(Math.round((50 / steps) * stepCount), 50),
       });
 
@@ -61,7 +74,7 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
     }, interval);
 
     return () => clearInterval(timer);
-  }, [hasEntered]);
+  }, [hasEntered, currentCurrency]);
 
   // Staggered variants for copy elements
   const containerVariants = {
@@ -116,7 +129,7 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
                 variants={itemVariants}
                 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-slate-900 leading-[1.14]"
               >
-                You deserve hyper-realistic video ads that look like a <span className="text-amber-600 font-extrabold">€10,000 production shoot</span>
+                You deserve hyper-realistic video ads that look like a <span className="text-amber-600 font-extrabold">{currentCurrency.shootValue}</span>
               </motion.h2>
 
               <motion.p 
@@ -173,11 +186,11 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
                   className="shimmer-btn relative overflow-hidden px-6 py-3.5 rounded-xl text-[11px] font-black tracking-widest transition-all cursor-pointer text-center select-none text-white uppercase bg-gradient-to-b from-[#e3c166] via-[#C9A84C] to-[#b08e33] border-b-[5px] border-[#8e732c] shadow-[0_8px_20px_rgba(201,168,76,0.3)] hover:brightness-105 active:translate-y-[3px] active:border-b-[1px] active:shadow-[0_2px_8px_rgba(201,168,76,0.2)]"
                 >
                   <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-                  CLAIM YOUR SPOT — €300 DEPOSIT
+                  CLAIM YOUR SPOT — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT
                 </button>
                 
                 <div className="flex items-center space-x-2 text-slate-500 text-[10px] font-mono justify-center sm:justify-start">
-                  <span>💰 €300 to start (€600 total)</span>
+                  <span>💰 {currentCurrency.symbol}{currentCurrency.deposit} to start ({currentCurrency.symbol}{currentCurrency.price} total)</span>
                   <span>•</span>
                   <span>⏱️ Setup: 10 min</span>
                   <span>•</span>
@@ -220,10 +233,10 @@ export default function OfferRevealSection({ onClaimClick, accentColor }: OfferR
               <div className="glass-panel py-3 px-2 text-center flex flex-col justify-center items-center space-y-0.5 bg-white/95 rounded-2xl border border-white/50 shadow-sm">
                 <span className="text-base sm:text-lg">💰</span>
                 <span className="text-sm sm:text-base font-mono font-bold text-slate-900">
-                  €{hasEntered ? counts.price : 600}
+                  {currentCurrency.symbol}{hasEntered ? counts.price.toLocaleString() : currentCurrency.price}
                 </span>
                 <span className="text-[8px] sm:text-[9px] font-semibold text-slate-400 uppercase tracking-wider leading-none line-through">
-                  €1,200 VALUE
+                  {currentCurrency.symbol}{currentCurrency.value} VALUE
                 </span>
               </div>
 

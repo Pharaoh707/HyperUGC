@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { SPOTS_REMAINING, getCountdownTarget } from "../counter";
 import PremiumSparklesEffect from "./PremiumSparklesEffect";
+import { useCurrency } from "../lib/CurrencyContext";
 
 interface CTARepeatSectionProps {
   onClaimClick: () => void;
@@ -9,6 +10,7 @@ interface CTARepeatSectionProps {
 }
 
 export default function CTARepeatSection({ onClaimClick, accentColor }: CTARepeatSectionProps) {
+  const { currentCurrency } = useCurrency();
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 25, seconds: 0 });
 
   useEffect(() => {
@@ -114,10 +116,10 @@ export default function CTARepeatSection({ onClaimClick, accentColor }: CTARepea
               className={`shimmer-btn relative overflow-hidden px-9 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
             >
               <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-              CLAIM YOUR SPOT — €300 DEPOSIT
+              CLAIM YOUR SPOT — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT
             </button>
             <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-              💰 €600 INTRO PRICE (REG. €1,200) • ONLY 50% DUE TODAY • 100% SATISFACTION GUARANTEED
+              💰 {currentCurrency.symbol}{currentCurrency.price} INTRO PRICE (REG. {currentCurrency.symbol}{currentCurrency.value}) • ONLY 50% DUE TODAY • 100% SATISFACTION GUARANTEED
             </p>
           </div>
 

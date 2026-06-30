@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Play } from "lucide-react";
 import TextReveal from "./TextReveal";
-import { getVimeoVideoData } from "./vimeoCache";
+import { getVimeoVideoData, KNOWN_VIDEOS_METADATA } from "./vimeoCache";
 
 interface PortfolioSectionProps {
   accentColor: "gold" | "violet";
@@ -21,6 +21,7 @@ function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: str
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
   useEffect(() => {
@@ -53,22 +54,28 @@ function LazyVimeo({ vimeoId, label, isVertical }: { vimeoId: string; label: str
           onLoad={() => setIframeLoaded(true)}
         />
       ) : (
-        <div className="absolute inset-0">
-          {thumbnailUrl ? (
+        <div className="absolute inset-0 w-full h-full">
+          {/* Shimmer skeleton content placeholder while image is preloading */}
+          {(!thumbnailUrl || !thumbnailLoaded) && (
+            <div className="absolute inset-0 bg-slate-900 animate-pulse flex flex-col justify-center items-center text-center p-4">
+              <div className="w-10 h-10 border-2 border-[#C9A84C]/20 border-t-[#C9A84C] animate-spin rounded-full mb-3" />
+              <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
+                Preparing ad preview...
+              </span>
+            </div>
+          )}
+          
+          {thumbnailUrl && (
             <img
               src={thumbnailUrl}
               alt={label}
-              className="w-full h-full object-cover scale-[1.01] transition-transform duration-500 group-hover/vimeo:scale-105"
+              onLoad={() => setThumbnailLoaded(true)}
+              className={`w-full h-full object-cover scale-[1.01] transition-all duration-700 ease-out group-hover/vimeo:scale-105 ${
+                thumbnailLoaded ? "opacity-100" : "opacity-0"
+              }`}
               loading="lazy"
               referrerPolicy="no-referrer"
             />
-          ) : (
-            <div className="absolute inset-0 flex flex-col justify-center items-center bg-slate-950 text-center p-4">
-              <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 animate-spin rounded-full mb-3" />
-              <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">
-                Preparing...
-              </span>
-            </div>
           )}
 
           {/* Centered golden premium glassmorphism play button facade */}
@@ -193,8 +200,17 @@ interface PortfolioCardProps {
 function PortfolioCard({ item, idx }: PortfolioCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [hasEntered, setHasEntered] = useState(false);
-  const [isVertical, setIsVertical] = useState(true);
-  const [aspectClass, setAspectClass] = useState("aspect-[9/16]");
+  const [isVertical, setIsVertical] = useState(() => {
+    const known = KNOWN_VIDEOS_METADATA[item.vimeoId];
+    return known ? known.isVertical : true;
+  });
+  const [aspectClass, setAspectClass] = useState(() => {
+    const known = KNOWN_VIDEOS_METADATA[item.vimeoId];
+    if (known) {
+      return known.isVertical ? "aspect-[9/16]" : "aspect-[16/9]";
+    }
+    return "aspect-[9/16]";
+  });
   const [reduceMotion, setReduceMotion] = useState(false);
 
   // Setup Framer Motion scroll tracker for subtle premium parallax window depth

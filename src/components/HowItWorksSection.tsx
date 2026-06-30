@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { DollarSign, FileText, CheckCircle2 } from "lucide-react";
+import { useCurrency } from "../lib/CurrencyContext";
 
 interface HowItWorksSectionProps {
   onClaimClick: () => void;
@@ -8,6 +9,7 @@ interface HowItWorksSectionProps {
 }
 
 export default function HowItWorksSection({ onClaimClick, accentColor }: HowItWorksSectionProps) {
+  const { currentCurrency } = useCurrency();
   const [fillPercent, setFillPercent] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -43,7 +45,18 @@ export default function HowItWorksSection({ onClaimClick, accentColor }: HowItWo
             INTAKE & PRODUCTION PIPELINE
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-black text-slate-900 tracking-tight leading-none">
-            From brief to live campaign — in three steps, under 72 hours.
+            From brief to live campaign — in three steps, <motion.span
+              animate={{ 
+                color: ["#0f172a", "#ca8a04", "#0f172a"],
+                scale: [1, 1.04, 1]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="inline-block origin-center font-black"
+            >under 72 hours.</motion.span>
           </h2>
           <p className="text-slate-600 font-medium text-base sm:text-lg">
             No endless onboarding calls. No back-and-forth. No wondering where your order is.
@@ -169,10 +182,10 @@ export default function HowItWorksSection({ onClaimClick, accentColor }: HowItWo
             onClick={onClaimClick}
             className={`shimmer-btn px-8 py-4.5 rounded-xl text-xs sm:text-sm font-black text-white cursor-pointer tracking-widest transition-all uppercase select-none ${btnBg}`}
           >
-            CLAIM YOUR SPOT — €300 DEPOSIT
+            CLAIM YOUR SPOT — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT
           </button>
           <p className="text-slate-500 text-[11px] font-mono font-semibold uppercase">
-            💰 SECURE THE €600 INTRO PRICE FOREVER • 100% REFUNDABLE BEFORE CREATIVE BRIEF SUBMISSION
+            💰 SECURE THE {currentCurrency.symbol}{currentCurrency.price} INTRO PRICE FOREVER • 100% REFUNDABLE BEFORE CREATIVE BRIEF SUBMISSION
           </p>
         </motion.div>
 

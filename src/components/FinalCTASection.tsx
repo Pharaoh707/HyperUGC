@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { ShieldCheck, Calendar, Zap, RefreshCw, Layers } from "lucide-react";
 import { getCountdownTarget } from "../counter";
 import PremiumSparklesEffect from "./PremiumSparklesEffect";
+import { useCurrency } from "../lib/CurrencyContext";
 
 interface FinalCTASectionProps {
   onPaymentCheckout: () => void;
@@ -10,17 +11,22 @@ interface FinalCTASectionProps {
 }
 
 export default function FinalCTASection({ onPaymentCheckout, accentColor }: FinalCTASectionProps) {
+  const { currentCurrency } = useCurrency();
   const [showPrice, setShowPrice] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 25, seconds: 0 });
-  const [counter, setCounter] = useState(1200);
+  const [counter, setCounter] = useState(currentCurrency.valueNum);
+
+  useEffect(() => {
+    setCounter(currentCurrency.valueNum);
+  }, [currentCurrency]);
 
   useEffect(() => {
     if (!showPrice) {
-      setCounter(1200);
+      setCounter(currentCurrency.valueNum);
       return;
     }
-    const start = 1200;
-    const end = 300;
+    const start = currentCurrency.valueNum;
+    const end = currentCurrency.depositNum;
     const duration = 2200; // 2.2 seconds countdown
     const startTime = performance.now();
 
@@ -96,14 +102,74 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
         
         {/* Header Block */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <span className="text-xs font-bold font-mono tracking-[0.25em] text-rose-500 uppercase block animate-pulse">
-            🚨 EXTREMELY LIMITED PORTAL
+          <span className="text-xs font-bold font-mono tracking-[0.25em] text-rose-500 uppercase block">
+            🚨 EXTREMELY <motion.span
+              animate={{ 
+                scale: [1, 1.1, 1],
+                color: ["#f43f5e", "#be123c", "#f43f5e"]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="inline-block origin-center font-bold"
+            >LIMITED</motion.span> PORTAL
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-black text-slate-100/10 text-slate-900 tracking-tight leading-none">
-            Spots are limited to maintain quality and fast delivery. Once they're gone, they're gone.
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-black text-slate-900 tracking-tight leading-none">
+            Spots are <motion.span
+              animate={{ 
+                scale: [1, 1.05, 1],
+                color: ["#0f172a", "#ef4444", "#0f172a"]
+              }}
+              transition={{ 
+                duration: 2.5, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="inline-block origin-center font-black"
+            >limited</motion.span> to maintain quality and fast delivery. Once <motion.span
+              animate={{ 
+                scale: [1, 1.03, 1],
+                color: ["#ef4444", "#991b1b", "#ef4444"]
+              }}
+              transition={{ 
+                duration: 2.2, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="inline-block origin-center font-black"
+            >they're gone, they're gone.</motion.span>
           </h2>
           <p className="text-slate-600 font-medium text-base sm:text-lg">
-            Lock in the <span className="font-extrabold text-slate-900">€600 launch rate</span> today. Pay only <span className="font-extrabold text-slate-900">€300 deposit</span> to book your slot now.
+            Lock in the <motion.span
+              animate={{ 
+                scale: [1, 1.04, 1],
+                color: ["#0f172a", "#ca8a04", "#0f172a"]
+              }}
+              transition={{ 
+                duration: 3.5, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="inline-block origin-center font-extrabold"
+            >
+              {currentCurrency.symbol}{currentCurrency.price} launch rate
+            </motion.span> today. Pay only <motion.span
+              animate={{ 
+                scale: [1, 1.04, 1],
+                color: ["#0f172a", "#ca8a04", "#0f172a"]
+              }}
+              transition={{ 
+                duration: 3.5, 
+                repeat: Infinity, 
+                ease: "easeInOut",
+                delay: 0.5
+              }}
+              className="inline-block origin-center font-extrabold"
+            >
+              {currentCurrency.symbol}{currentCurrency.deposit} deposit
+            </motion.span> to book your slot now.
           </p>
         </div>
 
@@ -156,7 +222,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                 
                 {/* 1. Value strike-through */}
                 <div className="relative inline-block text-slate-400 text-xl font-bold font-mono">
-                  <span>€1,200 VALUE</span>
+                  <span>{currentCurrency.symbol}{currentCurrency.value} VALUE</span>
                   {showPrice && (
                     <motion.div
                       initial={{ width: 0 }}
@@ -175,7 +241,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                     transition={{ delay: 0.9, duration: 0.5 }}
                     className="text-lg text-slate-600 font-bold font-mono tracking-tight leading-none"
                   >
-                    Standard Launch Price: €600
+                    Standard Launch Price: {currentCurrency.symbol}{currentCurrency.price}
                   </motion.div>
                 )}
 
@@ -190,7 +256,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                     <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block font-bold">DEPOSIT TO SECURE TIME</span>
                     <div className="flex flex-col justify-center items-center">
                     <span className={`text-5xl sm:text-6xl font-black font-display tracking-tight leading-none block ${accentText} ${glowShadow} px-4 py-2 bg-white rounded-2xl border-2 ${accentBorder} animate-pulse-slow min-w-[140px]`}>
-                      €{counter.toLocaleString()}
+                      {currentCurrency.symbol}{counter.toLocaleString()}
                     </span>
                     <span className="text-xs text-slate-400 font-semibold font-mono mt-2">DUE TODAY (-50% OF PACKAGE VALUE)</span>
                   </div>
@@ -207,7 +273,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
                 className={`shimmer-btn relative overflow-hidden w-full h-[58px] rounded-xl text-xs sm:text-sm font-black text-white hover:brightness-105 cursor-pointer flex items-center justify-center space-x-2 px-4 select-none ${btnGrad}`}
               >
                 <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-                <span>CLAIM YOUR SPOT NOW — €300 DEPOSIT TO START</span>
+                <span>CLAIM YOUR SPOT NOW — {currentCurrency.symbol}{currentCurrency.deposit} DEPOSIT TO START</span>
               </button>
             </div>
 
@@ -235,7 +301,7 @@ export default function FinalCTASection({ onPaymentCheckout, accentColor }: Fina
         {/* Closing Sub-headline Callout on frosted glassmorphism */}
         <div className="max-w-2xl mx-auto p-5 rounded-2xl bg-white/30 backdrop-blur-md border border-white/40 shadow-xs text-center">
           <p className="text-xs sm:text-sm text-slate-800 font-bold tracking-wide leading-relaxed">
-            Join 160+ DTC brands already running <span className="text-amber-600 font-extrabold">premium AI-generated UGC that converts</span>.
+            Join 160+ DTC brands already running <span className="text-amber-600 font-extrabold">our premium AI-generated UGC ads for Saas</span>.
           </p>
         </div>
 

@@ -243,3 +243,47 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 };
 
 export default TestimonialCard;
+
+export function TestimonialCardSkeleton({ accentBorder }: { key?: any; accentBorder: string }) {
+  return (
+    <div className={`glass-panel p-6 sm:p-8 flex flex-col justify-between space-y-6 relative border ${accentBorder} overflow-hidden min-h-[320px] bg-white/40`}>
+      <div className="space-y-4.5 animate-pulse">
+        <div className="flex justify-between items-center">
+          {/* Star skeletons */}
+          <div className="flex space-x-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <div key={s} className="w-4 h-4 bg-slate-200/60 rounded" />
+            ))}
+          </div>
+          {/* Badge skeleton */}
+          <div className="w-16 h-5 bg-slate-200/60 rounded-full" />
+        </div>
+        
+        {/* Headline skeleton */}
+        <div className="space-y-2">
+          <div className="w-3/4 h-5 bg-slate-200/60 rounded" />
+          <div className="w-1/2 h-5 bg-slate-200/60 rounded" />
+        </div>
+
+        {/* KPI Result block skeleton */}
+        <div className="w-32 h-6 bg-slate-200/60 rounded-lg" />
+
+        {/* Quote lines skeleton */}
+        <div className="space-y-2 pt-2">
+          <div className="w-full h-3.5 bg-slate-100/80 rounded" />
+          <div className="w-full h-3.5 bg-slate-100/80 rounded" />
+          <div className="w-5/6 h-3.5 bg-slate-100/80 rounded" />
+        </div>
+      </div>
+
+      {/* Author Row skeleton */}
+      <div className="flex items-center space-x-3 pt-4 border-t border-slate-100 animate-pulse">
+        <div className="w-11 h-11 rounded-full bg-slate-200/60 flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="w-24 h-4 bg-slate-200/60 rounded" />
+          <div className="w-32 h-3 bg-slate-100/80 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}

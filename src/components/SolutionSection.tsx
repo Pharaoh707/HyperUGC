@@ -267,7 +267,7 @@ export default function SolutionSection({ accentColor }: SolutionSectionProps) {
                 className="flex items-start space-x-2.5"
               >
                 <span className="text-emerald-500 font-bold mt-0.5 shrink-0">✓</span>
-                <span><strong>Dedicated Coordinator:</strong> Get one primary point of contact from brief onboarding to deployment, ensuring we do not disappear.</span>
+                <span><strong>Dedicated Coordinator:</strong> Get one primary point of contact from brief onboarding to deployment.</span>
               </motion.li>
             </motion.ul>
           </div>

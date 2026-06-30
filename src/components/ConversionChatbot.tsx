@@ -19,7 +19,7 @@ export default function ConversionChatbot({ accentColor, onClaimSpotClick }: Con
     {
       id: "welcome-msg",
       role: "assistant",
-      content: "Hello! I am your Mandjack AI assistant. I can answer any questions about our premium UGC production, pricing, delivery, or custom options. How can I help you scale your brand's creatives today?"
+      content: "Hello! I am your AI assistant. I can answer any questions about our premium UGC production, pricing, delivery, or custom options. How can I help you scale your brand's creatives today?"
     }
   ]);
   const [inputText, setInputText] = useState("");
@@ -267,13 +267,13 @@ export default function ConversionChatbot({ accentColor, onClaimSpotClick }: Con
                 </div>
                 <div>
                   <h4 className="text-sm font-sans font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                    Mandjack Strategy AI
+                    Mandjack.Digital
                     <span className="flex h-1.5 w-1.5 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                     </span>
                   </h4>
-                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">Optimization Specialist • Online</p>
+                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">24/7 Customer Support • Online</p>
                 </div>
               </div>
               <button
@@ -441,18 +441,6 @@ export default function ConversionChatbot({ accentColor, onClaimSpotClick }: Con
                 className="text-[9px] font-mono tracking-wide uppercase px-2 py-1 rounded bg-slate-800/40 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
               >
                 Turnaround speed?
-              </button>
-              <button
-                onClick={onClaimSpotClick}
-                className="text-[9px] font-mono tracking-wide uppercase px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-200 cursor-pointer font-bold transition-colors"
-              >
-                🚀 Claim Special Promo
-              </button>
-              <button
-                onClick={triggerManualEscalation}
-                className="text-[9px] font-mono tracking-wide uppercase px-2 py-1 rounded bg-slate-800/40 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
-              >
-                Chat with a Human 🤝
               </button>
             </div>
 

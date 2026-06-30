@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SPOTS_REMAINING, SPOTS_TOTAL } from "../counter";
 import PremiumSparklesEffect from "./PremiumSparklesEffect";
+import { CurrencySelectorWidget } from "../lib/CurrencyContext";
+
 
 interface TopBarProps {
   onClaimClick: () => void;
@@ -96,13 +98,17 @@ export default function TopBar({ onClaimClick, accentColor }: TopBarProps) {
         </div>
 
         {/* Small Interactive Shortcut Styled as a 3D tactile trigger */}
-        <button
-          onClick={onClaimClick}
-          className="relative overflow-hidden inline-flex items-center justify-center font-bold text-xs uppercase tracking-widest text-[#1b120c] bg-[#C9A84C]/90 hover:bg-[#C9A84C] px-3.5 py-1 rounded-lg shadow-[0_3px_0_#91732c] active:shadow-[0_1px_0_#91732c] active:translate-y-[2px] transition-all duration-100 cursor-pointer border border-amber-300/30 select-none ml-1 sm:ml-2"
-        >
-          <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
-          Claim Now
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={onClaimClick}
+            className="relative overflow-hidden inline-flex items-center justify-center font-bold text-xs uppercase tracking-widest text-[#1b120c] bg-[#C9A84C]/90 hover:bg-[#C9A84C] px-3.5 py-1 rounded-lg shadow-[0_3px_0_#91732c] active:shadow-[0_1px_0_#91732c] active:translate-y-[2px] transition-all duration-100 cursor-pointer border border-amber-300/30 select-none ml-1 sm:ml-2"
+          >
+            <PremiumSparklesEffect color={accentColor === "violet" ? "violet" : "gold"} />
+            Claim Now
+          </button>
+          
+          <CurrencySelectorWidget />
+        </div>
         
       </div>
     </div>
